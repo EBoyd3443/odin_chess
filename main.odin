@@ -309,7 +309,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
     validTargetMoves: [dynamic][2]i8
 
     switch(pieceType) {
-        case -6:
+        case BLACK*KING:
             if(!state.blackKingMoved && 
             isEmpty(state.board[0][1]) && isNotAttacked(state, 0, 1) &&
             isEmpty(state.board[0][2]) && isNotAttacked(state, 0, 2) &&
@@ -330,7 +330,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
                     }
                 }
             }
-        case 6:
+        case WHITE*KING:
             if(!state.whiteKingMoved && 
             isEmpty(state.board[7][1]) && isNotAttacked(state, 7, 1) &&
             isEmpty(state.board[7][2]) && isNotAttacked(state, 7, 2) &&
@@ -351,9 +351,9 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
                     }
                 }
             }
-        case -5:
+        case BLACK*QUEEN:
             fallthrough
-        case 5:
+        case WHITE*QUEEN:
             checkNorth: bool = true
             checkNorthEast: bool = true
             checkEast: bool = true
@@ -468,18 +468,18 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
                     }
                 }
             }
-        // case -4:
+        // case BLACK*ROOK:
         //     fallthrough
-        // case 4:
-        // case -3:
+        // case WHITE*ROOK:
+        // case BLACK*KNIGHT:
         //     fallthrough
-        // case 3:
-        // case -2:
+        // case WHITE*KNIGHT:
+        // case BLACK*BISHOP:
         //     fallthrough
-        // case 2:
-        // case -1:
+        // case WHITE*BISHOP:
+        // case BLACK*PAWN:
             
-        // case 1:
+        // case WHITE*PAWN:
     }
     return validTargetMoves
 }
