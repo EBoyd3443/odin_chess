@@ -369,7 +369,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
                             append(&validTargetMoves, [2]i8{i8(pieceCoord[0])-i8(i), i8(pieceCoord[1])})
                         }
                         else {
-                            if((state.whiteToPlay?WHITE:BLACK) * state.board[i8(pieceCoord[0])-i8(i)][i8(pieceCoord[1])] > 0) {
+                            if(enemyColor * state.board[i8(pieceCoord[0])-i8(i)][i8(pieceCoord[1])] > 0) {
                                 append(&validTargetMoves, [2]i8{i8(pieceCoord[0])-i8(i), i8(pieceCoord[1])})
                             }
                             checkNorth = false
@@ -382,7 +382,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
                             append(&validTargetMoves, [2]i8{i8(pieceCoord[0])-i8(i), i8(pieceCoord[1])+i8(i)})
                         }
                         else {
-                            if((state.whiteToPlay?WHITE:BLACK) * state.board[i8(pieceCoord[0])-i8(i)][i8(pieceCoord[1])+i8(i)] > 0) {
+                            if(enemyColor * state.board[i8(pieceCoord[0])-i8(i)][i8(pieceCoord[1])+i8(i)] > 0) {
                                 append(&validTargetMoves, [2]i8{i8(pieceCoord[0])-i8(i), i8(pieceCoord[1])+i8(i)})
                             }
                             checkNorthEast = false
@@ -468,15 +468,146 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
                     }
                 }
             }
-        // case BLACK*ROOK:
-        //     fallthrough
-        // case WHITE*ROOK:
-        // case BLACK*KNIGHT:
-        //     fallthrough
-        // case WHITE*KNIGHT:
-        // case BLACK*BISHOP:
-        //     fallthrough
-        // case WHITE*BISHOP:
+        case BLACK*ROOK:
+            fallthrough
+        case WHITE*ROOK:
+            checkNorth: bool = true
+            checkEast: bool = true
+            checkSouth: bool = true
+            checkWest: bool = true
+            for i in 1..=7 {
+                if(checkNorth) {
+                    if(isOnBoard(i8(pieceCoord[0]) - i8(i), i8(pieceCoord[1]))) {
+                        if(isEmpty(state.board[i8(pieceCoord[0])-i8(i)][i8(pieceCoord[1])])) {
+                            append(&validTargetMoves, [2]i8{i8(pieceCoord[0])-i8(i), i8(pieceCoord[1])})
+                        }
+                        else {
+                            if(enemyColor * state.board[i8(pieceCoord[0])-i8(i)][i8(pieceCoord[1])] > 0) {
+                                append(&validTargetMoves, [2]i8{i8(pieceCoord[0])-i8(i), i8(pieceCoord[1])})
+                            }
+                            checkNorth = false
+                        }
+                    }
+                }
+                if(checkEast) {
+                    if(isOnBoard(i8(pieceCoord[0]), i8(pieceCoord[1]) + i8(i))) {
+                        if(isEmpty(state.board[i8(pieceCoord[0])][i8(pieceCoord[1])+i8(i)])) {
+                            append(&validTargetMoves, [2]i8{i8(pieceCoord[0]), i8(pieceCoord[1])+i8(i)})
+                        }
+                        else {
+                            if(enemyColor * state.board[i8(pieceCoord[0])][i8(pieceCoord[1])+i8(i)] > 0) {
+                                append(&validTargetMoves, [2]i8{i8(pieceCoord[0]), i8(pieceCoord[1])+i8(i)})
+                            }
+                            checkEast = false
+                        }
+                    }
+                }
+                if(checkSouth) {
+                    if(isOnBoard(i8(pieceCoord[0]) + i8(i), i8(pieceCoord[1]))) {
+                        if(isEmpty(state.board[i8(pieceCoord[0])+i8(i)][i8(pieceCoord[1])])) {
+                            append(&validTargetMoves, [2]i8{i8(pieceCoord[0])+i8(i), i8(pieceCoord[1])})
+                        }
+                        else {
+                            if(enemyColor * state.board[i8(pieceCoord[0])+i8(i)][i8(pieceCoord[1])] > 0) {
+                                append(&validTargetMoves, [2]i8{i8(pieceCoord[0])+i8(i), i8(pieceCoord[1])})
+                            }
+                            checkSouth = false
+                        }
+                    }
+                }
+                if(checkWest) {
+                    if(isOnBoard(i8(pieceCoord[0]), i8(pieceCoord[1]) - i8(i))) {
+                        if(isEmpty(state.board[i8(pieceCoord[0])][i8(pieceCoord[1])-i8(i)])) {
+                            append(&validTargetMoves, [2]i8{i8(pieceCoord[0]), i8(pieceCoord[1])-i8(i)})
+                        }
+                        else {
+                            if(enemyColor * state.board[i8(pieceCoord[0])][i8(pieceCoord[1])-i8(i)] > 0) {
+                                append(&validTargetMoves, [2]i8{i8(pieceCoord[0]), i8(pieceCoord[1])-i8(i)})
+                            }
+                            checkWest = false
+                        }
+                    }
+                }
+            }
+        case BLACK*KNIGHT:
+            fallthrough
+        case WHITE*KNIGHT:
+        knightMoves: [8][2]i8 = {
+            {i8(pieceCoord[0] + 2), i8(pieceCoord[1] + 1)},
+            {i8(pieceCoord[0] + 1), i8(pieceCoord[1] + 2)},
+            {i8(pieceCoord[0] - 1), i8(pieceCoord[1] + 2)},
+            {i8(pieceCoord[0] - 2), i8(pieceCoord[1] + 1)},
+            {i8(pieceCoord[0] + 2), i8(pieceCoord[1] - 1)},
+            {i8(pieceCoord[0] + 1), i8(pieceCoord[1] - 2)},
+            {i8(pieceCoord[0] - 1), i8(pieceCoord[1] - 2)},
+            {i8(pieceCoord[0] - 2), i8(pieceCoord[1] - 1)},
+        }
+        for move in knightMoves {
+            if(enemyColor * state.board[move[0]][move[1]] >= 0) {
+                append(&validTargetMoves, move)
+            }
+        }
+        case BLACK*BISHOP:
+            fallthrough
+        case WHITE*BISHOP:
+            checkNorthEast: bool = true
+            checkSouthEast: bool = true
+            checkSouthWest: bool = true
+            checkNorthWest: bool = true
+            for i in 1..=7 {
+                if(checkNorthEast) {
+                    if(isOnBoard(i8(pieceCoord[0]) - i8(i), i8(pieceCoord[1]) + i8(i))) {
+                        if(isEmpty(state.board[i8(pieceCoord[0])-i8(i)][i8(pieceCoord[1])+i8(i)])) {
+                            append(&validTargetMoves, [2]i8{i8(pieceCoord[0])-i8(i), i8(pieceCoord[1])+i8(i)})
+                        }
+                        else {
+                            if(enemyColor * state.board[i8(pieceCoord[0])-i8(i)][i8(pieceCoord[1])+i8(i)] > 0) {
+                                append(&validTargetMoves, [2]i8{i8(pieceCoord[0])-i8(i), i8(pieceCoord[1])+i8(i)})
+                            }
+                            checkNorthEast = false
+                        }
+                    }
+                }
+                if(checkSouthEast) {
+                    if(isOnBoard(i8(pieceCoord[0]) + i8(i), i8(pieceCoord[1]) + i8(i))) {
+                        if(isEmpty(state.board[i8(pieceCoord[0])+i8(i)][i8(pieceCoord[1])+i8(i)])) {
+                            append(&validTargetMoves, [2]i8{i8(pieceCoord[0])+i8(i), i8(pieceCoord[1])+i8(i)})
+                        }
+                        else {
+                            if(enemyColor * state.board[i8(pieceCoord[0])+i8(i)][i8(pieceCoord[1])+i8(i)] > 0) {
+                                append(&validTargetMoves, [2]i8{i8(pieceCoord[0])+i8(i), i8(pieceCoord[1])+i8(i)})
+                            }
+                            checkSouthEast = false
+                        }
+                    }
+                }
+                if(checkSouthWest) {
+                    if(isOnBoard(i8(pieceCoord[0]) + i8(i), i8(pieceCoord[1]) - i8(i))) {
+                        if(isEmpty(state.board[i8(pieceCoord[0])+i8(i)][i8(pieceCoord[1])-i8(i)])) {
+                            append(&validTargetMoves, [2]i8{i8(pieceCoord[0])+i8(i), i8(pieceCoord[1])-i8(i)})
+                        }
+                        else {
+                            if(enemyColor * state.board[i8(pieceCoord[0])+i8(i)][i8(pieceCoord[1])-i8(i)] > 0) {
+                                append(&validTargetMoves, [2]i8{i8(pieceCoord[0])+i8(i), i8(pieceCoord[1])-i8(i)})
+                            }
+                            checkSouthWest = false
+                        }
+                    }
+                }
+                if(checkNorthWest) {
+                    if(isOnBoard(i8(pieceCoord[0]) - i8(i), i8(pieceCoord[1]) - i8(i))) {
+                        if(isEmpty(state.board[i8(pieceCoord[0])-i8(i)][i8(pieceCoord[1])-i8(i)])) {
+                            append(&validTargetMoves, [2]i8{i8(pieceCoord[0])-i8(i), i8(pieceCoord[1])-i8(i)})
+                        }
+                        else {
+                            if(enemyColor * state.board[i8(pieceCoord[0])-i8(i)][i8(pieceCoord[1])-i8(i)] > 0) {
+                                append(&validTargetMoves, [2]i8{i8(pieceCoord[0])-i8(i), i8(pieceCoord[1])-i8(i)})
+                            }
+                            checkNorthWest = false
+                        }
+                    }
+                }
+            }
         // case BLACK*PAWN:
             
         // case WHITE*PAWN:
