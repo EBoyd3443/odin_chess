@@ -3,6 +3,7 @@ package chess
 import "core:fmt"
 import "core:os"
 import "core:strings"
+import "core:strconv"
 import "core:sync"
 import "core:thread"
 import rl "vendor:raylib"
@@ -47,14 +48,14 @@ main :: proc() {
 
     // Not currently used.
     // fileToChar:= make(map[i8]u8)
-    // fileToChar[1] = 'A'
-    // fileToChar[2] = 'B'
-    // fileToChar[3] = 'C'
-    // fileToChar[4] = 'D'
-    // fileToChar[5] = 'E'
-    // fileToChar[6] = 'F'
-    // fileToChar[7] = 'G'
-    // fileToChar[8] = 'H'
+    // fileToChar[0] = 'a'
+    // fileToChar[1] = 'b'
+    // fileToChar[2] = 'c'
+    // fileToChar[3] = 'd'
+    // fileToChar[4] = 'e'
+    // fileToChar[5] = 'f'
+    // fileToChar[6] = 'g'
+    // fileToChar[7] = 'h'
    
     t := thread.create_and_start_with_poly_data(
         &state,
@@ -85,27 +86,41 @@ inputThread :: proc(state: ^Game_State) {
 
     // Get next move.
     for {
+
         fmt.println("Enter move.")
 
         /*******************  TESTING  *********************************/
-        fmt.println(getValidMoves(state, "d3", fileToInt))
-        fmt.println(isNotAttacked(state, 1, 3))
+        fmt.println(getValidMoves(state, "b5", fileToInt))
+        // fmt.println(state.moveList)
+        // substringStart:= len(state.moveList) - 5
+        // substringResult, ok:= strings.substring(state.moveList, (substringStart > 0)?substringStart:0, len(state.moveList))
+        // fmt.print("Last move:")
+        // fmt.println(strings.trim_space(substringResult))
                 
         
         buf:[265]byte
         n,err := os.read(os.stdin, buf[:])
+
         if err!= nil {
             fmt.eprintln("Error reading input:", err)
         }
         else {
-            input:= string(strings.trim_space(string(buf[:n])))
+            input:= string(strings.to_lower(strings.trim_space(string(buf[:n]))))
 
             inputError: = isValidMove(input, state, fileToInt)
             if(inputError == "None") {
                 sync.mutex_lock(&state.mutex)
+
                 currentPiece := state.board[7-(input[1]-'1')][fileToInt[input[0]]]
                 state.board[7-(input[1]-'1')][fileToInt[input[0]]] = 0
                 state.board[7-(input[3]-'1')][fileToInt[input[2]]] = currentPiece
+                
+                if state.moveList == "" {
+                    state.moveList = strings.clone(input)
+                } else {
+                    state.moveList = strings.concatenate({state.moveList, "\n", input})
+                }
+                
                 sync.mutex_unlock(&state.mutex)
                 //fmt.print("\x1b[2J\x1b[H")
             }
@@ -608,9 +623,169 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
                     }
                 }
             }
-        // case BLACK*PAWN:
+        case BLACK*PAWN:
+            if(isEmpty(state.board[i8(pieceCoord[0]+1)][i8(pieceCoord[1])])) {
+                append(&validTargetMoves, [2]i8{i8(pieceCoord[0]+1), i8(pieceCoord[1])})
+            }
+            if(state.board[i8(pieceCoord[0]+1)][i8(pieceCoord[1]+1)] > 0) {
+                append(&validTargetMoves, [2]i8{i8(pieceCoord[0]+1), i8(pieceCoord[1]+1)})
+            }
+            if(state.board[i8(pieceCoord[0]+1)][i8(pieceCoord[1]-1)] > 0) {
+                append(&validTargetMoves, [2]i8{i8(pieceCoord[0]+1), i8(pieceCoord[1]-1)})
+            }
+            if(pieceCoord[0] == 1) {
+                append(&validTargetMoves, [2]i8{i8(pieceCoord[0]+2), i8(pieceCoord[1])})
+            }
+            //En passant
+            if(pieceCoord[0] == 4) {
+                //En passant left
+                if(pieceCoord[1]-1>=0 && state.board[i8(pieceCoord[0])][i8(pieceCoord[1]-1)] == WHITE*PAWN) {
+                    substringStart:= len(state.moveList) - 5
+                    lastMove, ok:= strings.substring(state.moveList, (substringStart > 0)?substringStart:0, len(state.moveList))
+                    lastMove = strings.trim_space(lastMove)
+
+                    //build valid en passant last move
+                    fileToChar:= make(map[i8]u8)
+                    fileToChar[0] = 'a'
+                    fileToChar[1] = 'b'
+                    fileToChar[2] = 'c'
+                    fileToChar[3] = 'd'
+                    fileToChar[4] = 'e'
+                    fileToChar[5] = 'f'
+                    fileToChar[6] = 'g'
+                    fileToChar[7] = 'h'
+                    validRank:= 8 - pieceCoord[0]
+                    validEnPassantLastMove:= ""
+                    buf: [1]byte
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
+                        strings.clone(string([]u8{fileToChar[i8(pieceCoord[1]-1)]}))})
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
+                        strconv.write_int(buf[:], i64(validRank-2), 10)})
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
+                        strings.clone(string([]u8{fileToChar[i8(pieceCoord[1]-1)]}))})
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
+                        strconv.write_int(buf[:], i64(validRank), 10)})
+                    
+                    if(strings.equal_fold(lastMove, validEnPassantLastMove)) {
+                        append(&validTargetMoves, [2]i8{i8(pieceCoord[0]+1), i8(pieceCoord[1]-1)})
+                    }
+                }
+                //En passant right
+                if(pieceCoord[1]+1<8 && state.board[i8(pieceCoord[0])][i8(pieceCoord[1]+1)] == WHITE*PAWN) {
+                    substringStart:= len(state.moveList) - 5
+                    lastMove, ok:= strings.substring(state.moveList, (substringStart > 0)?substringStart:0, len(state.moveList))
+                    lastMove = strings.trim_space(lastMove)
+
+                    //build valid en passant last move
+                    fileToChar:= make(map[i8]u8)
+                    fileToChar[0] = 'a'
+                    fileToChar[1] = 'b'
+                    fileToChar[2] = 'c'
+                    fileToChar[3] = 'd'
+                    fileToChar[4] = 'e'
+                    fileToChar[5] = 'f'
+                    fileToChar[6] = 'g'
+                    fileToChar[7] = 'h'
+                    validRank:= 8 - pieceCoord[0]
+                    validEnPassantLastMove:= ""
+                    buf: [1]byte
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
+                        strings.clone(string([]u8{fileToChar[i8(pieceCoord[1]+1)]}))})
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
+                        strconv.write_int(buf[:], i64(validRank-2), 10)})
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
+                        strings.clone(string([]u8{fileToChar[i8(pieceCoord[1]+1)]}))})
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
+                        strconv.write_int(buf[:], i64(validRank), 10)})
+                    fmt.println(validEnPassantLastMove)
+                    if(strings.equal_fold(lastMove,validEnPassantLastMove)) {
+                        append(&validTargetMoves, [2]i8{i8(pieceCoord[0]+1), i8(pieceCoord[1]+1)})
+                    }
+                }
+            }
             
-        // case WHITE*PAWN:
+
+        case WHITE*PAWN:
+            if(isEmpty(state.board[i8(pieceCoord[0]-1)][i8(pieceCoord[1])])) {
+                append(&validTargetMoves, [2]i8{i8(pieceCoord[0]-1), i8(pieceCoord[1])})
+            }
+            if(state.board[i8(pieceCoord[0]-1)][i8(pieceCoord[1]+1)] < 0) {
+                append(&validTargetMoves, [2]i8{i8(pieceCoord[0]+1), i8(pieceCoord[1]+1)})
+            }
+            if(state.board[i8(pieceCoord[0]-1)][i8(pieceCoord[1]-1)] < 0) {
+                append(&validTargetMoves, [2]i8{i8(pieceCoord[0]+1), i8(pieceCoord[1]-1)})
+            }
+            if(pieceCoord[0] == 6) {
+                append(&validTargetMoves, [2]i8{i8(pieceCoord[0]-2), i8(pieceCoord[1])})
+            }
+            //En passant
+            if(pieceCoord[0] == 3) {
+                //En passant left
+                if(pieceCoord[1]-1>=0 && state.board[i8(pieceCoord[0])][i8(pieceCoord[1]-1)] == BLACK*PAWN) {
+                    substringStart:= len(state.moveList) - 5
+                    lastMove, ok:= strings.substring(state.moveList, (substringStart > 0)?substringStart:0, len(state.moveList))
+                    lastMove = strings.trim_space(lastMove)
+
+                    //build valid en passant last move
+                    fileToChar:= make(map[i8]u8)
+                    fileToChar[0] = 'a'
+                    fileToChar[1] = 'b'
+                    fileToChar[2] = 'c'
+                    fileToChar[3] = 'd'
+                    fileToChar[4] = 'e'
+                    fileToChar[5] = 'f'
+                    fileToChar[6] = 'g'
+                    fileToChar[7] = 'h'
+                    validRank:= 8 - pieceCoord[0]
+                    validEnPassantLastMove:= ""
+                    buf: [1]byte
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
+                        strings.clone(string([]u8{fileToChar[i8(pieceCoord[1]-1)]}))})
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
+                        strconv.write_int(buf[:], i64(validRank+2), 10)})
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
+                        strings.clone(string([]u8{fileToChar[i8(pieceCoord[1]-1)]}))})
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
+                        strconv.write_int(buf[:], i64(validRank), 10)})
+                    
+                    if(strings.equal_fold(lastMove, validEnPassantLastMove)) {
+                        append(&validTargetMoves, [2]i8{i8(pieceCoord[0]-1), i8(pieceCoord[1]-1)})
+                    }
+                }
+                //En passant right
+                if(pieceCoord[1]+1<8 && state.board[i8(pieceCoord[0])][i8(pieceCoord[1]+1)] == BLACK*PAWN) {
+                    substringStart:= len(state.moveList) - 5
+                    lastMove, ok:= strings.substring(state.moveList, (substringStart > 0)?substringStart:0, len(state.moveList))
+                    lastMove = strings.trim_space(lastMove)
+
+                    //build valid en passant last move
+                    fileToChar:= make(map[i8]u8)
+                    fileToChar[0] = 'a'
+                    fileToChar[1] = 'b'
+                    fileToChar[2] = 'c'
+                    fileToChar[3] = 'd'
+                    fileToChar[4] = 'e'
+                    fileToChar[5] = 'f'
+                    fileToChar[6] = 'g'
+                    fileToChar[7] = 'h'
+                    validRank:= 8 - pieceCoord[0]
+                    validEnPassantLastMove:= ""
+                    buf: [1]byte
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
+                        strings.clone(string([]u8{fileToChar[i8(pieceCoord[1]+1)]}))})
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
+                        strconv.write_int(buf[:], i64(validRank+2), 10)})
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
+                        strings.clone(string([]u8{fileToChar[i8(pieceCoord[1]+1)]}))})
+                    validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
+                        strconv.write_int(buf[:], i64(validRank), 10)})
+                    fmt.println(validEnPassantLastMove)
+                    if(strings.equal_fold(lastMove,validEnPassantLastMove)) {
+                        append(&validTargetMoves, [2]i8{i8(pieceCoord[0]-1), i8(pieceCoord[1]+1)})
+                    }
+                }
+            }
+
     }
     return validTargetMoves
 }
