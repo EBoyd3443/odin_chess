@@ -4,6 +4,48 @@ import "core:fmt"
 import "core:strings"
 import "core:strconv"
 
+getWhitePieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
+    remainingPieces:= 16-state.whitePiecesCaptured
+    result:[dynamic][2]i8
+    index: i8 = 0
+    for y:i8=7;y>=0;y-=1 {
+        for x:i8=0;x<8;x+=1 {
+            if(state.board[y][x] > 0) {
+                target:[2]i8= {y, x}
+                append(&result, target)
+                index+=1
+                if(index >= remainingPieces){
+                    return result
+                }
+            }
+        }
+    }
+    // Lines past here should never run.
+    fmt.println("tools.odin(line17): index >= remainingPieces early exit not hit.")
+    return result
+}
+
+getBlackPieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
+    remainingPieces:= 16-state.whitePiecesCaptured
+    result:[dynamic][2]i8
+    index: i8 = 0
+    for y:i8=0;y<8;y+=1 {
+        for x:i8=0;x<8;x+=1 {
+            if(state.board[y][x] < 0) {
+                target:[2]i8= {y, x}
+                append(&result, target)
+                index+=1
+                if(index >= remainingPieces){
+                    return result
+                }
+            }
+        }
+    }
+    // Lines past here should never run.
+    fmt.println("tools.odin(line38): index >= remainingPieces early exit not hit.")
+    return result
+}
+
 isValidMove :: proc(move: string, state: ^Game_State, fileToInt: map[u8]i8) -> string {
     
     if (len(move) < 4 || len(move) > 5) ||

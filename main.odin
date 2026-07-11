@@ -19,6 +19,8 @@ Game_State :: struct {
     whiteToPlay: bool,
     whiteKingMoved: bool,
     blackKingMoved: bool,
+    whitePiecesCaptured: i8,
+    blackPiecesCaptured: i8,
     moveList: string,
 }
 
@@ -39,6 +41,8 @@ main :: proc() {
         whiteToPlay = true,
         whiteKingMoved = false,
         blackKingMoved = false,
+        whitePiecesCaptured = 0,
+        blackPiecesCaptured = 0,
     }
 
     // Not currently used.
