@@ -47,6 +47,7 @@ main :: proc() {
 
     // Not currently used.
     // fileToChar:= make(map[i8]u8)
+    // defer delete(fileToChar)
     // fileToChar[0] = 'a'
     // fileToChar[1] = 'b'
     // fileToChar[2] = 'c'

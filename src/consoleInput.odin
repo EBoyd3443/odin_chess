@@ -13,6 +13,7 @@ inputThread :: proc(state: ^Game_State) {
 
         /*-------------------- For Testing --------------------------*/
         fileToInt:= make(map[u8]i8)
+        defer delete(fileToInt)
         fileToInt['A'] = 0
         fileToInt['B'] = 1
         fileToInt['C'] = 2
