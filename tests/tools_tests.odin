@@ -338,9 +338,9 @@ getValidMoves_whitePawnOpening::proc(t: ^testing.T) {
             { 0,            0,            0,            0,           0,          0,            0,            0         },
             { 0,            0,            0,            0,           0,          0,            0,            0         },
             { 0,            0,            0,            0,           0,          0,            0,            0         },
-            { 0,            0,            0,            0,           0,          0,            0,            0         },
-            { 0,            0,            0,            0,           0,          0,            0,            0         },
-            { WHITE*PAWN,   0,            0,            0,           WHITE*PAWN, 0,            0,            WHITE*PAWN},
+            { 0,            0,            WHITE*KNIGHT, 0,           0,          0,            0,            0         },
+            { 0,            WHITE*KNIGHT, 0,            0,           0,          0,            0,            0         },
+            { WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN,   0,           WHITE*PAWN, 0,            0,            WHITE*PAWN},
             { 0,            0,            0,            0,           0,          0,            0,            0         },
         },
         whiteToPlay = true,
@@ -366,36 +366,40 @@ getValidMoves_whitePawnOpening::proc(t: ^testing.T) {
     fileToInt['e'] = 4
     fileToInt['f'] = 5
     fileToInt['g'] = 6
-    fileToInt['h'] = 7
-    expectedResults: [3][dynamic][2]i8
-    defer delete(expectedResults[0])
-    defer delete(expectedResults[1])
-    defer delete(expectedResults[2])
+    fileToInt['h'] = 7    
+    expectedResults: [5][dynamic][2]i8
     expectedMove: [2]i8 = {5,0}
     append(&expectedResults[0], expectedMove)
     expectedMove = {4,0}
     append(&expectedResults[0], expectedMove)
+    expectedMove = {5,2}
+    append(&expectedResults[2], expectedMove)
     expectedMove = {5,4}
-    append(&expectedResults[1], expectedMove)
+    append(&expectedResults[3], expectedMove)
     expectedMove = {4,4}
-    append(&expectedResults[1], expectedMove)
+    append(&expectedResults[3], expectedMove)
     expectedMove = {5,7}
-    append(&expectedResults[2], expectedMove)
+    append(&expectedResults[4], expectedMove)
     expectedMove = {4,7}
-    append(&expectedResults[2], expectedMove)
+    append(&expectedResults[4], expectedMove)
+    for i in 0..=4 {
+        defer delete(expectedResults[i])
+    }
     
-    actualResults: [3][dynamic][2]i8
+    actualResults: [5][dynamic][2]i8
     actualResults[0] = chess.getValidMoves(&testState, {6,0}, fileToInt)
-    defer delete(actualResults[0])
-    actualResults[1] = chess.getValidMoves(&testState, {6,4}, fileToInt)
-    defer delete(actualResults[1])
-    actualResults[2] = chess.getValidMoves(&testState, {6,7}, fileToInt)
-    defer delete(actualResults[2])
+    actualResults[1] = chess.getValidMoves(&testState, {6,1}, fileToInt)
+    actualResults[2] = chess.getValidMoves(&testState, {6,2}, fileToInt)
+    actualResults[3] = chess.getValidMoves(&testState, {6,4}, fileToInt)
+    actualResults[4] = chess.getValidMoves(&testState, {6,7}, fileToInt)
+    for i in 0..=4 {
+        defer delete(actualResults[i])
+    }
     equivalence:bool
     if(len(actualResults[0]) == len(expectedResults[0]) && len(actualResults[1]) == len(expectedResults[1]) && 
     len(actualResults[2]) == len(expectedResults[2])){
         equivalence = true
-        for x in 0..=2 {
+        for x in 0..=4 {
             for i in actualResults[x] {
                 contains:= false
                 for j in expectedResults[x]{
@@ -421,9 +425,9 @@ getValidMoves_blackPawnOpening::proc(t: ^testing.T) {
     testState : chess.Game_State = {    
         board = {
             { 0,            0,            0,            0,           0,          0,            0,            0         },
-            { BLACK*PAWN,   0,            0,            0,           BLACK*PAWN, 0,            0,            BLACK*PAWN},
-            { 0,            0,            0,            0,           0,          0,            0,            0         },
-            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { BLACK*PAWN,   BLACK*PAWN,   BLACK*PAWN,   0,           BLACK*PAWN, 0,            0,            BLACK*PAWN},
+            { 0,            BLACK*KNIGHT, 0,            0,           0,          0,            0,            0         },
+            { 0,            0,            BLACK*KNIGHT, 0,           0,          0,            0,            0         },
             { 0,            0,            0,            0,           0,          0,            0,            0         },
             { 0,            0,            0,            0,           0,          0,            0,            0         },
             { 0,            0,            0,            0,           0,          0,            0,            0         },
@@ -453,35 +457,39 @@ getValidMoves_blackPawnOpening::proc(t: ^testing.T) {
     fileToInt['f'] = 5
     fileToInt['g'] = 6
     fileToInt['h'] = 7
-    expectedResults: [3][dynamic][2]i8
-    defer delete(expectedResults[0])
-    defer delete(expectedResults[1])
-    defer delete(expectedResults[2])
+    expectedResults: [5][dynamic][2]i8
     expectedMove: [2]i8 = {3,0}
     append(&expectedResults[0], expectedMove)
     expectedMove = {2,0}
     append(&expectedResults[0], expectedMove)
+    expectedMove = {2,2}
+    append(&expectedResults[2], expectedMove)
     expectedMove = {3,4}
-    append(&expectedResults[1], expectedMove)
+    append(&expectedResults[3], expectedMove)
     expectedMove = {2,4}
-    append(&expectedResults[1], expectedMove)
+    append(&expectedResults[3], expectedMove)
     expectedMove = {3,7}
-    append(&expectedResults[2], expectedMove)
+    append(&expectedResults[4], expectedMove)
     expectedMove = {2,7}
-    append(&expectedResults[2], expectedMove)
+    append(&expectedResults[4], expectedMove)
+    for i in 0..=4 {
+        defer delete(expectedResults[i])
+    }
     
-    actualResults: [3][dynamic][2]i8
+    actualResults: [5][dynamic][2]i8
     actualResults[0] = chess.getValidMoves(&testState, {1,0}, fileToInt)
-    defer delete(actualResults[0])
-    actualResults[1] = chess.getValidMoves(&testState, {1,4}, fileToInt)
-    defer delete(actualResults[1])
-    actualResults[2] = chess.getValidMoves(&testState, {1,7}, fileToInt)
-    defer delete(actualResults[2])
+    actualResults[1] = chess.getValidMoves(&testState, {1,1}, fileToInt)
+    actualResults[2] = chess.getValidMoves(&testState, {1,2}, fileToInt)
+    actualResults[3] = chess.getValidMoves(&testState, {1,4}, fileToInt)
+    actualResults[4] = chess.getValidMoves(&testState, {1,7}, fileToInt)
+    for i in 0..=4 {
+        defer delete(actualResults[i])
+    }
     equivalence:bool
     if(len(actualResults[0]) == len(expectedResults[0]) && len(actualResults[1]) == len(expectedResults[1]) && 
     len(actualResults[2]) == len(expectedResults[2])){
         equivalence = true
-        for x in 0..=2 {
+        for x in 0..=4 {
             for i in actualResults[x] {
                 contains:= false
                 for j in expectedResults[x]{
