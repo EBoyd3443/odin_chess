@@ -4,6 +4,54 @@ import "core:fmt"
 import "core:strings"
 import "core:strconv"
 
+moveStringToArray :: proc(input: string) -> [2][2]i8 {
+    fileToInt:= make(map[u8]i8)
+    defer delete(fileToInt)
+    fileToInt['A'] = 0
+    fileToInt['B'] = 1
+    fileToInt['C'] = 2
+    fileToInt['D'] = 3
+    fileToInt['E'] = 4
+    fileToInt['F'] = 5
+    fileToInt['G'] = 6
+    fileToInt['H'] = 7
+    fileToInt['a'] = 0
+    fileToInt['b'] = 1
+    fileToInt['c'] = 2
+    fileToInt['d'] = 3
+    fileToInt['e'] = 4
+    fileToInt['f'] = 5
+    fileToInt['g'] = 6
+    fileToInt['h'] = 7
+
+    result:[2][2]i8
+    result[0][0]=i8(7-(input[1]-'1'))
+    result[0][1]=i8(fileToInt[input[0]])
+    result[1][0]=i8(7-(input[3]-'1'))
+    result[1][1]=i8(fileToInt[input[2]])
+
+    return result
+}
+
+executeMove :: proc(state: ^Game_State, move: [2][2]i8) {
+    //To Do: en passant capture scoring
+    //To Do: en passant capture piece cleanup
+    //To Do: castling piece movement
+    if(state.whiteToPlay) {
+        if(state.board[move[1][0]][move[1][1]] < 0) {
+            state.blackPiecesCaptured += 1
+        }
+    }
+    else {
+        if(state.board[move[1][0]][move[1][1]] > 0) {
+            state.whitePiecesCaptured += 1
+        }
+    }
+    currentPiece := state.board[move[0][0]][move[0][1]]
+    state.board[move[0][0]][move[0][1]] = 0
+    state.board[move[1][0]][move[1][1]] = currentPiece
+}
+
 getWhitePieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
     remainingPieces:= 16-state.whitePiecesCaptured
     result:[dynamic][2]i8
@@ -549,7 +597,8 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
             if(state.board[i8(pieceCoord[0]+1)][i8(pieceCoord[1]-1)] > 0) {
                 append(&validTargetMoves, [2]i8{i8(pieceCoord[0]+1), i8(pieceCoord[1]-1)})
             }
-            if(pieceCoord[0] == 1) {
+            if(pieceCoord[0] == 1 && isEmpty(state.board[i8(pieceCoord[0]+1)][pieceCoord[1]]) &&
+            isEmpty(state.board[i8(pieceCoord[0]+2)][pieceCoord[1]])) {
                 append(&validTargetMoves, [2]i8{i8(pieceCoord[0]+2), i8(pieceCoord[1])})
             }
             //En passant
@@ -631,7 +680,8 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
             if(state.board[i8(pieceCoord[0]-1)][i8(pieceCoord[1]-1)] < 0) {
                 append(&validTargetMoves, [2]i8{i8(pieceCoord[0]+1), i8(pieceCoord[1]-1)})
             }
-            if(pieceCoord[0] == 6) {
+            if(pieceCoord[0] == 6 && isEmpty(state.board[i8(pieceCoord[0]-1)][pieceCoord[1]]) &&
+            isEmpty(state.board[i8(pieceCoord[0]-2)][pieceCoord[1]])) {
                 append(&validTargetMoves, [2]i8{i8(pieceCoord[0]-2), i8(pieceCoord[1])})
             }
             //En passant

@@ -6,26 +6,30 @@ import "core:strings"
 import "core:sync"
 
 inputThread :: proc(state: ^Game_State) {
-    fileToInt:= make(map[u8]i8)
-    fileToInt['A'] = 0
-    fileToInt['B'] = 1
-    fileToInt['C'] = 2
-    fileToInt['D'] = 3
-    fileToInt['E'] = 4
-    fileToInt['F'] = 5
-    fileToInt['G'] = 6
-    fileToInt['H'] = 7
-    fileToInt['a'] = 0
-    fileToInt['b'] = 1
-    fileToInt['c'] = 2
-    fileToInt['d'] = 3
-    fileToInt['e'] = 4
-    fileToInt['f'] = 5
-    fileToInt['g'] = 6
-    fileToInt['h'] = 7
+
 
     // Get next move.
     for {
+
+        /*-------------------- For Testing --------------------------*/
+        fileToInt:= make(map[u8]i8)
+        fileToInt['A'] = 0
+        fileToInt['B'] = 1
+        fileToInt['C'] = 2
+        fileToInt['D'] = 3
+        fileToInt['E'] = 4
+        fileToInt['F'] = 5
+        fileToInt['G'] = 6
+        fileToInt['H'] = 7
+        fileToInt['a'] = 0
+        fileToInt['b'] = 1
+        fileToInt['c'] = 2
+        fileToInt['d'] = 3
+        fileToInt['e'] = 4
+        fileToInt['f'] = 5
+        fileToInt['g'] = 6
+        fileToInt['h'] = 7
+        /*-----------------------------------------------------------*/
 
         fmt.println("Enter move.")
 
@@ -50,10 +54,13 @@ inputThread :: proc(state: ^Game_State) {
             inputError: = isValidMove(input, state, fileToInt)
             if(inputError == "None") {
                 sync.mutex_lock(&state.mutex)
-
-                currentPiece := state.board[7-(input[1]-'1')][fileToInt[input[0]]]
-                state.board[7-(input[1]-'1')][fileToInt[input[0]]] = 0
-                state.board[7-(input[3]-'1')][fileToInt[input[2]]] = currentPiece
+                
+                move:=moveStringToArray(input)
+                executeMove(state, move)
+                
+                // currentPiece := state.board[7-(input[1]-'1')][fileToInt[input[0]]]
+                // state.board[7-(input[1]-'1')][fileToInt[input[0]]] = 0
+                // state.board[7-(input[3]-'1')][fileToInt[input[2]]] = currentPiece
                 
                 if state.moveList == "" {
                     state.moveList = strings.clone(input)
