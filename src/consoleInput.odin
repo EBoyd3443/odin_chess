@@ -10,8 +10,6 @@ inputThread :: proc(state: ^Game_State) {
 
     // Get next move.
     for {
-
-        /*-------------------- For Testing --------------------------*/
         fileToInt:= make(map[u8]i8)
         defer delete(fileToInt)
         fileToInt['A'] = 0
@@ -30,7 +28,6 @@ inputThread :: proc(state: ^Game_State) {
         fileToInt['f'] = 5
         fileToInt['g'] = 6
         fileToInt['h'] = 7
-        /*-----------------------------------------------------------*/
 
         fmt.println("Enter move.")
 
@@ -52,7 +49,7 @@ inputThread :: proc(state: ^Game_State) {
         else {
             input:= string(strings.to_lower(strings.trim_space(string(buf[:n]))))
 
-            inputError: = isValidMove(input, state, fileToInt)
+            inputError: = isValidMove(state, input, fileToInt)
             if(inputError == "None") {
                 sync.mutex_lock(&state.mutex)
                 

@@ -96,7 +96,7 @@ getBlackPieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
     return result
 }
 
-isValidMove :: proc(move: string, state: ^Game_State, fileToInt: map[u8]i8) -> string {
+isValidMove :: proc(state: ^Game_State, move: string, fileToInt: map[u8]i8) -> string {
     
     if (len(move) < 4 || len(move) > 5) ||
     !((move[0] >= 'a' && move[0] <= 'h') || (move[0] >= 'A' && move[0] <= 'H'))||
@@ -133,7 +133,7 @@ isEmpty :: proc(target: i8) -> bool {
     return target == 0
 }
 
-containsOwnPiece :: proc(state: ^Game_State, ownColor: i8, target: i8) -> bool {
+containsOwnPiece :: proc(ownColor: i8, target: i8) -> bool {
     return target * ownColor > 0
 }
 
@@ -306,7 +306,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
             for i in -1..=1 {
                 for j in -1..=1{
                     if(isOnBoard(i8(pieceCoord[0])+i8(i), i8(pieceCoord[1])+i8(j)) &&
-                    !containsOwnPiece(state, ownColor, (state.board[i8(pieceCoord[0])+i8(i)][i8(pieceCoord[1])+i8(j)]))&&
+                    !containsOwnPiece(ownColor, (state.board[i8(pieceCoord[0])+i8(i)][i8(pieceCoord[1])+i8(j)]))&&
                     isNotAttacked(state, i8(pieceCoord[0])+i8(i), i8(pieceCoord[1])+i8(j))) {
                         append(&validTargetMoves, [2]i8{i8(pieceCoord[0])+i8(i), i8(pieceCoord[1])+i8(j)})
                     }
@@ -327,7 +327,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
             for i in -1..=1 {
                 for j in -1..=1 {
                     if(isOnBoard(i8(pieceCoord[0])+i8(i), i8(pieceCoord[1])+i8(j)) &&
-                    !containsOwnPiece(state, ownColor, (state.board[i8(pieceCoord[0])+i8(i)][i8(pieceCoord[1])+i8(j)]))&&
+                    !containsOwnPiece(ownColor, (state.board[i8(pieceCoord[0])+i8(i)][i8(pieceCoord[1])+i8(j)]))&&
                     isNotAttacked(state, i8(pieceCoord[0])+i8(i), i8(pieceCoord[1])+i8(j))) {
                         append(&validTargetMoves, [2]i8{i8(pieceCoord[0])+i8(i), i8(pieceCoord[1])+i8(j)})
                     }

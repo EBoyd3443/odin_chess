@@ -46,7 +46,7 @@ moveStringToArray_withinRange::proc(t: ^testing.T) {
 
 @(test)
 executeMove_simpleTest::proc(t: ^testing.T) {
-    testState : chess.Game_State =  {
+    testState : chess.Game_State = {
         board = {
             { 0,            0,            0,            0,           0,          0,            0,            0         },
             { 0,            0,            0,            0,           0,          0,            0,            0         },
@@ -83,7 +83,7 @@ executeMove_simpleTest::proc(t: ^testing.T) {
             }
         }
     }
-    testing.expect(t, equivalence, "moveStringToArray within range test failed.")
+    testing.expect(t, equivalence, "executeMove simple test failed.")
 }
 
 // Additions for executeMove
@@ -95,7 +95,7 @@ executeMove_simpleTest::proc(t: ^testing.T) {
 
 @(test)
 getWhitePieces_simpleTest::proc(t: ^testing.T) {
-    testState : chess.Game_State =  {
+    testState : chess.Game_State = {
         board = {
             { WHITE*KING,   0,            0,            0,           0,          0,            0,            WHITE*PAWN},
             { 0,            0,            0,            0,           0,          0,            WHITE*BISHOP, 0         },
@@ -150,12 +150,12 @@ getWhitePieces_simpleTest::proc(t: ^testing.T) {
             equivalence = false
         }
     }
-    testing.expect(t, equivalence, "moveStringToArray within range test failed.")
+    testing.expect(t, equivalence, "getWhitePieces simple test failed.")
 }
 
 @(test)
 getBlackPieces_simpleTest::proc(t: ^testing.T) {
-    testState : chess.Game_State =  {
+    testState : chess.Game_State = {
         board = {
             { BLACK*KING,   0,            0,            0,           0,          0,            0,            BLACK*PAWN},
             { 0,            0,            0,            0,           0,          0,            BLACK*BISHOP, 0         },
@@ -210,23 +210,74 @@ getBlackPieces_simpleTest::proc(t: ^testing.T) {
             equivalence = false
         }
     }
-    testing.expect(t, equivalence, "moveStringToArray within range test failed.")
+    testing.expect(t, equivalence, "getBlackPieces simple test failed.")
 }
 
-// @(test)
-// isValidMove_test::proc(t: ^testing.T) {
-    
-// }
+@(test)
+isValidMove_tests::proc(t: ^testing.T) {
+    testState : chess.Game_State = {
+        board = {
+            { BLACK*ROOK, BLACK*KNIGHT, BLACK*BISHOP, BLACK*QUEEN, BLACK*KING, BLACK*BISHOP, BLACK*KNIGHT, BLACK*ROOK},
+            { BLACK*PAWN, BLACK*PAWN,   BLACK*PAWN,   BLACK*PAWN,  BLACK*PAWN, BLACK*PAWN,   BLACK*PAWN,   BLACK*PAWN},
+            { 0,          0,            0,            0,           0,          0,            0,            0         },
+            { 0,          0,            0,            0,           0,          0,            0,            0         },
+            { 0,          0,            0,            0,           0,          0,            0,            0         },
+            { 0,          0,            0,            0,           0,          0,            0,            0         },
+            { WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN,  WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN},
+            { WHITE*ROOK, WHITE*KNIGHT, WHITE*BISHOP, WHITE*QUEEN, WHITE*KING, WHITE*BISHOP, WHITE*KNIGHT, WHITE*ROOK},
+        },
+        whiteToPlay = true,
+        whiteKingMoved = false,
+        blackKingMoved = false,
+        whitePiecesCaptured = 0,
+        blackPiecesCaptured = 0,
+    }
 
-// @(test)
-// isEmpty_test::proc(t: ^testing.T) {
-    
-// }
+    fileToInt:= make(map[u8]i8)
+        defer delete(fileToInt)
+        fileToInt['A'] = 0
+        fileToInt['B'] = 1
+        fileToInt['C'] = 2
+        fileToInt['D'] = 3
+        fileToInt['E'] = 4
+        fileToInt['F'] = 5
+        fileToInt['G'] = 6
+        fileToInt['H'] = 7
+        fileToInt['a'] = 0
+        fileToInt['b'] = 1
+        fileToInt['c'] = 2
+        fileToInt['d'] = 3
+        fileToInt['e'] = 4
+        fileToInt['f'] = 5
+        fileToInt['g'] = 6
+        fileToInt['h'] = 7
 
-// @(test)
-// containsOwnPiece_test::proc(t: ^testing.T) {
-    
-// }
+    testing.expect(t, chess.isValidMove(&testState, "", fileToInt) == "Move format error.", "isValidMove empty string test failed.")
+    testing.expect(t, chess.isValidMove(&testState, "a1a", fileToInt) == "Move format error.", "isValidMove 3char string test failed.")
+    testing.expect(t, chess.isValidMove(&testState, "a1a3a4", fileToInt) == "Move format error.", "isValidMove 6char string test failed.")
+    testing.expect(t, chess.isValidMove(&testState, "a5a4", fileToInt) == "No piece selected.", "isValidMove no piece selected test failed.")
+    testing.expect(t, chess.isValidMove(&testState, "a7a6", fileToInt) == "Black piece selected when white to play.", "isValidMove black selected when white to play test failed.")
+    testState.whiteToPlay = false
+    testing.expect(t, chess.isValidMove(&testState, "a2a4", fileToInt) == "White piece selected when black to play.", "isValidMove white selected when black to play test failed.")
+    testState.whiteToPlay = true
+    testing.expect(t, chess.isValidMove(&testState, "a2a8", fileToInt) == "Piece promotion missing from move.", "isValidMove piece promotion(white) failed.")
+    testState.whiteToPlay = false
+    testing.expect(t, chess.isValidMove(&testState, "a7a1", fileToInt) == "Piece promotion missing from move.", "isValidMove piece promotion(black) failed.")
+    testState.whiteToPlay = true
+    testing.expect(t, chess.isValidMove(&testState, "a2a4", fileToInt) == "None", "isValidMove valid move failed.")
+}
+
+@(test)
+isEmpty_test::proc(t: ^testing.T) {
+    testing.expect(t, chess.isEmpty(0), "isEmpty test failed.")
+}
+
+@(test)
+containsOwnPiece_test::proc(t: ^testing.T) {
+    testing.expect(t, chess.containsOwnPiece(-1, -5), "containsOwnPiece black test failed")
+    testing.expect(t, chess.containsOwnPiece(1, 5), "containsOwnPiece white test failed")
+    testing.expect(t, !chess.containsOwnPiece(-1, 0), "containsOwnPiece empty target test failed")
+}
 
 // @(test)
 // isNotAttacked_test::proc(t: ^testing.T) {
@@ -255,11 +306,11 @@ getBlackPieces_simpleTest::proc(t: ^testing.T) {
 
 // getBlackPieces :: proc(state: ^Game_State) -> [dynamic][2]i8 
 
-// isValidMove :: proc(move: string, state: ^Game_State, fileToInt: map[u8]i8) -> string 
+// isValidMove :: proc(state: ^Game_State, move: string, fileToInt: map[u8]i8) -> string 
 
 // isEmpty :: proc(target: i8) -> bool 
 
-// containsOwnPiece :: proc(state: ^Game_State, ownColor: i8, target: i8) -> bool 
+// containsOwnPiece :: proc(ownColor: i8, target: i8) -> bool 
 
 // isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool 
 
