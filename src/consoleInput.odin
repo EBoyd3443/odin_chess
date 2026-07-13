@@ -29,6 +29,7 @@ inputThread :: proc(state: ^Game_State) {
         fileToInt['g'] = 6
         fileToInt['h'] = 7
 
+        fmt.println(isNotAttacked(state, 2, 0))
         fmt.println("Enter move.")
 
         /*******************  TESTING  *********************************/

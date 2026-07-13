@@ -1,6 +1,7 @@
 package tests
 
 import "core:testing"
+import "core:fmt"
 
 @require import chess "../src"
 
@@ -279,15 +280,55 @@ containsOwnPiece_test::proc(t: ^testing.T) {
     testing.expect(t, !chess.containsOwnPiece(-1, 0), "containsOwnPiece empty target test failed")
 }
 
-// @(test)
-// isNotAttacked_test::proc(t: ^testing.T) {
-    
-// }
+@(test)
+isNotAttacked_test::proc(t: ^testing.T) {
+    testState : chess.Game_State = {
+        board = {
+            { BLACK*ROOK, BLACK*KNIGHT, BLACK*BISHOP, BLACK*QUEEN, BLACK*KING, BLACK*BISHOP, BLACK*KNIGHT, BLACK*ROOK},
+            { BLACK*PAWN, BLACK*PAWN,   BLACK*PAWN,   BLACK*PAWN,  BLACK*PAWN, BLACK*PAWN,   BLACK*PAWN,   BLACK*PAWN},
+            { 0,          0,            0,            0,           0,          0,            0,            0         },
+            { 0,          0,            0,            0,           0,          0,            0,            0         },
+            { 0,          0,            0,            0,           0,          0,            0,            0         },
+            { 0,          0,            0,            0,           0,          0,            0,            0         },
+            { WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN,  WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN},
+            { WHITE*ROOK, WHITE*KNIGHT, WHITE*BISHOP, WHITE*QUEEN, WHITE*KING, WHITE*BISHOP, WHITE*KNIGHT, WHITE*ROOK},
+        },
+        whiteToPlay = true,
+        whiteKingMoved = false,
+        blackKingMoved = false,
+        whitePiecesCaptured = 0,
+        blackPiecesCaptured = 0,
+    }
+    expectedResult : [8][8]bool = {
+        { true,  false, false, false, false, false, false, true  },
+        { false, false, false, false, false, false, false, false },
+        { false, false, false, false, false, false, false, false },
+        { true,  true,  true,  true,  true,  true,  true,  true  },
+        { true,  true,  true,  true,  true,  true,  true,  true  },
+        { true,  true,  true,  true,  true,  true,  true,  true  },
+        { true,  true,  true,  true,  true,  true,  true,  true  },
+        { true,  true,  true,  true,  true,  true,  true,  true  },        
+    }
+    for x in 0..=7 {
+        for y in 0..=7 {
+            message:= fmt.aprintf("isNotAttacked test failed at (%d,%d)",x,y)
+            defer delete(message)
+            testing.expect(t, chess.isNotAttacked(&testState, i8(x), i8(y)) == expectedResult[y][x], message)
+        }
+    }
+}
 
-// @(test)
-// isOnBoard_test::proc(t: ^testing.T) {
-    
-// }
+@(test)
+isOnBoard_test::proc(t: ^testing.T) {
+    testing.expect(t, chess.isOnBoard(0,0), "isOnBoard at (0,0) edge test failed.")
+    testing.expect(t, chess.isOnBoard(7,7), "isOnBoard at (7,7) edge test failed.")
+    testing.expect(t, chess.isOnBoard(0,7), "isOnBoard at (0,7) edge test failed.")
+    testing.expect(t, chess.isOnBoard(7,0), "isOnBoard at (7,0) edge test failed.")
+    testing.expect(t, !chess.isOnBoard(8,0), "isOnBoard at (8,0) outside edge test failed.")
+    testing.expect(t, !chess.isOnBoard(0,8), "isOnBoard at (0,8) outside edge test failed.")
+    testing.expect(t, !chess.isOnBoard(-1,0), "isOnBoard at (-1,0) outside edge test failed.")
+    testing.expect(t, !chess.isOnBoard(0,-1), "isOnBoard at (0,-1) outside edge test failed.")
+}
 
 // @(test)
 // getValidMoves_test::proc(t: ^testing.T) {

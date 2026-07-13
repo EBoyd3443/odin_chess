@@ -139,7 +139,6 @@ containsOwnPiece :: proc(ownColor: i8, target: i8) -> bool {
 
 isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
     color: i8 = (state.whiteToPlay)? -1: 1
-    //pawns
     if(isOnBoard(y + color, x + 1) && state.board[y+color][x+1] == color * PAWN) {
         return false
     }
@@ -150,45 +149,49 @@ isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
     //right
     for i:i8=x+1; i<8; i+=1 {
         target: i8 = state.board[y][i]
-        if(target * color > 0) {
-            //check for own piece
-            break
-        }
+        
         if(target == color * QUEEN || target == color * ROOK){
             return false
+        }
+        if(target != 0) {
+            //blocked
+            break
         }
     }
     //left
     for i:i8=x-1; i>=0; i-=1 {
         target: i8 = state.board[y][i]
-        if(target * color > 0) {
-            //check for own piece
-            break
-        }
+        
         if(target == color * QUEEN || target == color * ROOK){
             return false
+        }
+        if(target != 0) {
+            //blocked
+            break
         }
     }
     //down
     for i:i8=y+1; i<8; i+=1 {
         target: i8 = state.board[i][x]
-        if(target * color > 0) {
-            //check for own piece
-            break
-        }
+        
         if(target == color * QUEEN || target == color * ROOK){
             return false
+        }
+        if(target != 0) {
+            //blocked
+            break
         }
     }
     //up
     for i:i8=y-1; i>=0; i-=1 {
         target: i8 = state.board[i][x]
-        if(target * color > 0) {
-            //check for own piece
-            break
-        }
+        
         if(target == color * QUEEN || target == color * ROOK){
             return false
+        }
+        if(target != 0) {
+            //blocked
+            break
         }
     }
 
@@ -196,45 +199,49 @@ isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
         //down right
     for i:i8=1; isOnBoard(x+i, y+i); i+=1 {
         target: i8 = state.board[y+i][x+i]
-        if(target * color > 0) {
-            //check for own piece
-            break
-        }
+        
         if(target == color * QUEEN || target == color * BISHOP){
             return false
+        }
+        if(target != 0) {
+            //blocked
+            break
         }
     }
     //up right
     for i:i8=1; isOnBoard(x+i, y-i); i+=1 {
         target: i8 = state.board[y-i][x+i]
-        if(target * color > 0) {
-            //check for own piece
-            break
-        }
+        
         if(target == color * QUEEN || target == color * BISHOP){
             return false
+        }
+        if(target != 0) {
+            //blocked
+            break
         }
     }
     //down left
     for i:i8=1; isOnBoard(x-i, y+i); i+=1 {
         target: i8 = state.board[y+i][x-i]
-        if(target * color > 0) {
-            //check for own piece
-            break
-        }
+        
         if(target == color * QUEEN || target == color * BISHOP){
             return false
+        }
+        if(target != 0) {
+            //blocked
+            break
         }
     }
     //up left
     for i:i8=1; isOnBoard(x-i, y-i); i+=1 {
         target: i8 = state.board[y-i][x-i]
-        if(target * color > 0) {
-            //check for own piece
-            break
-        }
+        
         if(target == color * QUEEN || target == color * BISHOP){
             return false
+        }
+        if(target != 0) {
+            //check for own piece
+            break
         }
     }
     //knights
