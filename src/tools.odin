@@ -55,6 +55,7 @@ executeMove :: proc(state: ^Game_State, move: [2][2]i8) {
 getWhitePieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
     remainingPieces:= 16-state.whitePiecesCaptured
     result:[dynamic][2]i8
+    defer delete(result)
     index: i8 = 0
     for y:i8=7;y>=0;y-=1 {
         for x:i8=0;x<8;x+=1 {
@@ -76,6 +77,7 @@ getWhitePieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
 getBlackPieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
     remainingPieces:= 16-state.whitePiecesCaptured
     result:[dynamic][2]i8
+    defer delete(result)
     index: i8 = 0
     for y:i8=0;y<8;y+=1 {
         for x:i8=0;x<8;x+=1 {
@@ -286,6 +288,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
     enemyColor: i8 = state.board[pieceCoord[0]][pieceCoord[1]]>0?BLACK:WHITE
 
     validTargetMoves: [dynamic][2]i8
+    defer delete(validTargetMoves)
 
     switch(pieceType) {
         case BLACK*KING:
@@ -611,6 +614,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
 
                     //build valid en passant last move
                     fileToChar:= make(map[i8]u8)
+                    defer delete(fileToChar)
                     fileToChar[0] = 'a'
                     fileToChar[1] = 'b'
                     fileToChar[2] = 'c'
@@ -643,6 +647,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
 
                     //build valid en passant last move
                     fileToChar:= make(map[i8]u8)
+                    defer delete(fileToChar)
                     fileToChar[0] = 'a'
                     fileToChar[1] = 'b'
                     fileToChar[2] = 'c'
@@ -694,6 +699,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
 
                     //build valid en passant last move
                     fileToChar:= make(map[i8]u8)
+                    defer delete(fileToChar)
                     fileToChar[0] = 'a'
                     fileToChar[1] = 'b'
                     fileToChar[2] = 'c'
@@ -726,6 +732,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: string, fileToInt: map[u8
 
                     //build valid en passant last move
                     fileToChar:= make(map[i8]u8)
+                    defer delete(fileToChar)
                     fileToChar[0] = 'a'
                     fileToChar[1] = 'b'
                     fileToChar[2] = 'c'
