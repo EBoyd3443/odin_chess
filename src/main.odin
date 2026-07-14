@@ -17,8 +17,6 @@ Game_State :: struct {
     mutex: sync.Mutex,
     board: [8][8]i8,
     whiteToPlay: bool,
-    whiteKingMoved: bool,
-    blackKingMoved: bool,
     whitePiecesCaptured: i8,
     blackPiecesCaptured: i8,
     moveList: string,
@@ -39,8 +37,6 @@ main :: proc() {
             { WHITE*ROOK, WHITE*KNIGHT, WHITE*BISHOP, WHITE*QUEEN, WHITE*KING, WHITE*BISHOP, WHITE*KNIGHT, WHITE*ROOK},
         },
         whiteToPlay = true,
-        whiteKingMoved = false,
-        blackKingMoved = false,
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }

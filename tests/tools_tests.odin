@@ -59,8 +59,6 @@ executeMove_simpleTest::proc(t: ^testing.T) {
             { WHITE*KNIGHT, 0,            0,            0,           0,          0,            0,            0         },
         },
         whiteToPlay = true,
-        whiteKingMoved = false,
-        blackKingMoved = false,
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
@@ -108,8 +106,6 @@ getWhitePieces_simpleTest::proc(t: ^testing.T) {
             { WHITE*KNIGHT, 0,            0,            0,           0,          0,            0,            WHITE*PAWN},
         },
         whiteToPlay = true,
-        whiteKingMoved = false,
-        blackKingMoved = false,
         whitePiecesCaptured = 6,
         blackPiecesCaptured = 0,
     }
@@ -173,8 +169,6 @@ getBlackPieces_simpleTest::proc(t: ^testing.T) {
             { BLACK*KNIGHT, 0,            0,            0,           0,          0,            0,            BLACK*PAWN},
         },
         whiteToPlay = true,
-        whiteKingMoved = false,
-        blackKingMoved = false,
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 6,
     }
@@ -238,8 +232,6 @@ isValidMove_tests::proc(t: ^testing.T) {
             { WHITE*ROOK, WHITE*KNIGHT, WHITE*BISHOP, WHITE*QUEEN, WHITE*KING, WHITE*BISHOP, WHITE*KNIGHT, WHITE*ROOK},
         },
         whiteToPlay = true,
-        whiteKingMoved = false,
-        blackKingMoved = false,
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
@@ -304,8 +296,6 @@ isNotAttacked_test::proc(t: ^testing.T) {
             { WHITE*ROOK, WHITE*KNIGHT, WHITE*BISHOP, WHITE*QUEEN, WHITE*KING, WHITE*BISHOP, WHITE*KNIGHT, WHITE*ROOK},
         },
         whiteToPlay = true,
-        whiteKingMoved = false,
-        blackKingMoved = false,
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
@@ -354,8 +344,6 @@ getValidMoves_whitePawnOpening::proc(t: ^testing.T) {
             { 0,            0,            0,            0,           0,          0,            0,            0         },
         },
         whiteToPlay = true,
-        whiteKingMoved = false,
-        blackKingMoved = false,
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
@@ -444,8 +432,6 @@ getValidMoves_blackPawnOpening::proc(t: ^testing.T) {
             { 0,            0,            0,            0,           0,          0,            0,            0         },
         },
         whiteToPlay = false,
-        whiteKingMoved = false,
-        blackKingMoved = false,
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
@@ -534,8 +520,6 @@ getValidMoves_bishopTest::proc(t: ^testing.T) {
             { 0,            0,            0,            0,           0,          0,            0,            0         },
         },
         whiteToPlay = true,
-        whiteKingMoved = false,
-        blackKingMoved = false,
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
@@ -619,8 +603,6 @@ getValidMoves_knightTest::proc(t: ^testing.T) {
             { 0,            0,            0,            0,           0,          0,            0,            0         },
         },
         whiteToPlay = true,
-        whiteKingMoved = false,
-        blackKingMoved = false,
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }

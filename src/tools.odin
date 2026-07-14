@@ -299,13 +299,14 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8, fileToInt: map[u8]
 
     switch(pieceType) {
         case BLACK*KING:
-            if(!state.blackKingMoved && 
+            //ToDo replace king moved with regex on move list
+            if(/*!state.blackKingMoved && */
             isEmpty(state.board[0][1]) && isNotAttacked(state, 0, 1) &&
             isEmpty(state.board[0][2]) && isNotAttacked(state, 0, 2) &&
             isEmpty(state.board[0][3]) && isNotAttacked(state, 0, 3)) {
                 append(&validTargetMoves, [2]i8{0, 2})
             }
-            if(!state.blackKingMoved && 
+            if(/*!state.blackKingMoved && */
             isEmpty(state.board[0][5]) && isNotAttacked(state, 0, 5) &&
             isEmpty(state.board[0][6]) && isNotAttacked(state, 0, 6)) {
                 append(&validTargetMoves, [2]i8{0, 6})
@@ -320,13 +321,14 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8, fileToInt: map[u8]
                 }
             }
         case WHITE*KING:
-            if(!state.whiteKingMoved && 
+            //ToDo replace king moved with regex on move list
+            if(/*!state.whiteKingMoved && */
             isEmpty(state.board[7][1]) && isNotAttacked(state, 7, 1) &&
             isEmpty(state.board[7][2]) && isNotAttacked(state, 7, 2) &&
             isEmpty(state.board[7][3]) && isNotAttacked(state, 7, 3)) {
                 append(&validTargetMoves, [2]i8{7, 2})
             }
-            if(!state.whiteKingMoved && 
+            if(/*!state.whiteKingMoved && */
             isEmpty(state.board[7][5]) && isNotAttacked(state, 7, 5) &&
             isEmpty(state.board[7][6]) && isNotAttacked(state, 7, 6)) {
                 append(&validTargetMoves, [2]i8{7, 6})
