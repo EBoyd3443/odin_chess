@@ -110,7 +110,7 @@ getWhitePieces_simpleTest::proc(t: ^testing.T) {
         whiteToPlay = true,
         whiteKingMoved = false,
         blackKingMoved = false,
-        whitePiecesCaptured = 0,
+        whitePiecesCaptured = 6,
         blackPiecesCaptured = 0,
     }
     testMove:[2][2]i8 = {{7,0},{5,1}}
@@ -139,17 +139,22 @@ getWhitePieces_simpleTest::proc(t: ^testing.T) {
 
     actualPieceList:[dynamic][2]i8 = chess.getWhitePieces(&testState)
     equivalence:=true
-    for i in actualPieceList {
-        contains:=false
-        for j in intendedPieceList {
-            if(i == j) {
-                contains = true
-                break
+    if(len(intendedPieceList) == len(actualPieceList)) {
+        for i in actualPieceList {
+            contains:=false
+            for j in intendedPieceList {
+                if(i == j) {
+                    contains = true
+                    break
+                }
+            }
+            if(!contains) {
+                equivalence = false
             }
         }
-        if(!contains) {
-            equivalence = false
-        }
+    }
+    else {
+        equivalence = false
     }
     testing.expect(t, equivalence, "getWhitePieces simple test failed.")
 }
@@ -171,7 +176,7 @@ getBlackPieces_simpleTest::proc(t: ^testing.T) {
         whiteKingMoved = false,
         blackKingMoved = false,
         whitePiecesCaptured = 0,
-        blackPiecesCaptured = 0,
+        blackPiecesCaptured = 6,
     }
     testMove:[2][2]i8 = {{7,0},{5,1}}
     intendedPieceList: [dynamic][2]i8
@@ -197,19 +202,24 @@ getBlackPieces_simpleTest::proc(t: ^testing.T) {
     addLocation = {0,7}
     append(&intendedPieceList, addLocation)
 
-    actualPieceList:[dynamic][2]i8 = chess.getWhitePieces(&testState)
+    actualPieceList:[dynamic][2]i8 = chess.getBlackPieces(&testState)
     equivalence:=true
-    for i in actualPieceList {
-        contains:= false
-        for j in intendedPieceList {
-            if(i == j) {
-                contains = true
-                break
+    if(len(intendedPieceList) == len(actualPieceList)) {
+        for i in actualPieceList {
+            contains:= false
+            for j in intendedPieceList {
+                if(i == j) {
+                    contains = true
+                    break
+                }
+            }
+            if(!contains) {
+                equivalence = false
             }
         }
-        if(!contains) {
-            equivalence = false
-        }
+    }
+    else {
+        equivalence = false
     }
     testing.expect(t, equivalence, "getBlackPieces simple test failed.")
 }
@@ -508,6 +518,184 @@ getValidMoves_blackPawnOpening::proc(t: ^testing.T) {
         equivalence = false
     }
     testing.expect(t, equivalence, "getValidMoves black pawn opening test failed.") 
+}
+
+@(test)
+getValidMoves_bishopTest::proc(t: ^testing.T) {
+    testState : chess.Game_State = {    
+        board = {
+            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { BLACK*KNIGHT, 0,            0,            0,           WHITE*PAWN, 0,            0,            0         },
+            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { 0,            0,            BLACK*BISHOP, 0,           0,          0,            0,            0         },
+            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { 0,            0,            0,            0,           0,          0,            0,            0         },
+        },
+        whiteToPlay = true,
+        whiteKingMoved = false,
+        blackKingMoved = false,
+        whitePiecesCaptured = 0,
+        blackPiecesCaptured = 0,
+    }
+    fileToInt:= make(map[u8]i8)
+    defer delete(fileToInt)
+    fileToInt['A'] = 0
+    fileToInt['B'] = 1
+    fileToInt['C'] = 2
+    fileToInt['D'] = 3
+    fileToInt['E'] = 4
+    fileToInt['F'] = 5
+    fileToInt['G'] = 6
+    fileToInt['H'] = 7
+    fileToInt['a'] = 0
+    fileToInt['b'] = 1
+    fileToInt['c'] = 2
+    fileToInt['d'] = 3
+    fileToInt['e'] = 4
+    fileToInt['f'] = 5
+    fileToInt['g'] = 6
+    fileToInt['h'] = 7
+    expectedResults: [dynamic][2]i8
+    expectedMove: [2]i8 = {2,1}
+    append(&expectedResults, expectedMove)
+    expectedMove = {1,4}
+    append(&expectedResults, expectedMove)
+    expectedMove = {2,3}
+    append(&expectedResults, expectedMove)
+    expectedMove = {4,1}
+    append(&expectedResults, expectedMove)
+    expectedMove = {5,0}
+    append(&expectedResults, expectedMove)
+    expectedMove = {4,3}
+    append(&expectedResults, expectedMove)
+    expectedMove = {5,4}
+    append(&expectedResults, expectedMove)
+    expectedMove = {6,5}
+    append(&expectedResults, expectedMove)
+    expectedMove = {7,6}
+    append(&expectedResults, expectedMove)
+    defer delete(expectedResults)
+    
+    actualResults: [dynamic][2]i8
+    actualResults = chess.getValidMoves(&testState, {3,2}, fileToInt)
+    defer delete(actualResults)
+
+    equivalence:bool
+    if(len(actualResults) == len(expectedResults)){
+        equivalence = true
+        for i in actualResults {
+            contains:= false
+            for j in expectedResults{
+                if(i == j) {
+                    contains = true
+                    break
+                }
+            }
+            if(!contains) {
+                equivalence = false
+            }
+        }
+    }
+    else{
+        equivalence = false
+    }
+    testing.expect(t, equivalence, "getValidMoves bishop test failed.") 
+}
+
+
+@(test)
+getValidMoves_knightTest::proc(t: ^testing.T) {
+    testState : chess.Game_State = {    
+        board = {
+            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { BLACK*KNIGHT, WHITE*PAWN,   0,            0,           0,          0,            0,            0         },
+            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { 0,            0,            BLACK*KNIGHT, 0,           0,          0,            0,            0         },
+            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { 0,            0,            0,            BLACK*PAWN,  0,          0,            0,            0         },
+            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { 0,            0,            0,            0,           0,          0,            0,            0         },
+        },
+        whiteToPlay = true,
+        whiteKingMoved = false,
+        blackKingMoved = false,
+        whitePiecesCaptured = 0,
+        blackPiecesCaptured = 0,
+    }
+    fileToInt:= make(map[u8]i8)
+    defer delete(fileToInt)
+    fileToInt['A'] = 0
+    fileToInt['B'] = 1
+    fileToInt['C'] = 2
+    fileToInt['D'] = 3
+    fileToInt['E'] = 4
+    fileToInt['F'] = 5
+    fileToInt['G'] = 6
+    fileToInt['H'] = 7
+    fileToInt['a'] = 0
+    fileToInt['b'] = 1
+    fileToInt['c'] = 2
+    fileToInt['d'] = 3
+    fileToInt['e'] = 4
+    fileToInt['f'] = 5
+    fileToInt['g'] = 6
+    fileToInt['h'] = 7
+    expectedResults: [2][dynamic][2]i8
+    expectedMove: [2]i8 = {0,2}
+    append(&expectedResults[0], expectedMove)
+    expectedMove = {2,2}
+    append(&expectedResults[0], expectedMove)
+    expectedMove = {3,1}
+    append(&expectedResults[0], expectedMove)
+    expectedMove = {1,1}
+    append(&expectedResults[1], expectedMove)
+    expectedMove = {1,3}
+    append(&expectedResults[1], expectedMove)
+    expectedMove = {2,0}
+    append(&expectedResults[1], expectedMove)
+    expectedMove = {2,4}
+    append(&expectedResults[1], expectedMove)
+    expectedMove = {4,0}
+    append(&expectedResults[1], expectedMove)
+    expectedMove = {4,4}
+    append(&expectedResults[1], expectedMove)
+    expectedMove = {5,1}
+    append(&expectedResults[1], expectedMove)
+    for i in 0..=1 {
+        defer delete(expectedResults[i])
+    }
+    
+    actualResults: [2][dynamic][2]i8
+    actualResults[0] = chess.getValidMoves(&testState, {1,0}, fileToInt)
+    actualResults[1] = chess.getValidMoves(&testState, {3,2}, fileToInt)
+    for i in 0..=1 {
+        defer delete(actualResults[i])
+    }
+
+    equivalence:bool
+    if(len(actualResults[0]) == len(expectedResults[0]) && len(actualResults[1]) == len(expectedResults[1])){
+        equivalence = true
+        for x in 0..=1 {
+            for i in actualResults[x] {
+                contains:= false
+                for j in expectedResults[x]{
+                    if(i == j) {
+                        contains = true
+                        break
+                    }
+                }
+                if(!contains) {
+                    equivalence = false
+                }
+            }
+        }
+    }
+    else{
+        equivalence = false
+    }
+    testing.expect(t, equivalence, "getValidMoves bishop test failed.") 
 }
 
 ///////////////////////////////////////////

@@ -54,45 +54,47 @@ executeMove :: proc(state: ^Game_State, move: [2][2]i8) {
 
 getWhitePieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
     remainingPieces:= 16-state.whitePiecesCaptured
+    //fmt.print("White remaining: ")
+    //fmt.println(remainingPieces)
     result:[dynamic][2]i8
     defer delete(result)
-    index: i8 = 0
+    foundPieces: i8 = 0
     for y:i8=7;y>=0;y-=1 {
         for x:i8=0;x<8;x+=1 {
             if(state.board[y][x] > 0) {
                 target:[2]i8= {y, x}
                 append(&result, target)
-                index+=1
-                if(index >= remainingPieces){
+                foundPieces+=1
+                if(foundPieces >= remainingPieces){
                     return result
                 }
             }
         }
     }
     // Lines past here should never run.
-    fmt.println("tools.odin(line17): index >= remainingPieces early exit not hit.")
+    fmt.println("tools.odin(line73): index >= remainingPieces early exit not hit.")
     return result
 }
 
 getBlackPieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
-    remainingPieces:= 16-state.whitePiecesCaptured
+    remainingPieces:= 16-state.blackPiecesCaptured
     result:[dynamic][2]i8
     defer delete(result)
-    index: i8 = 0
+    foundPieces: i8 = 0
     for y:i8=0;y<8;y+=1 {
         for x:i8=0;x<8;x+=1 {
             if(state.board[y][x] < 0) {
                 target:[2]i8= {y, x}
                 append(&result, target)
-                index+=1
-                if(index >= remainingPieces){
+                foundPieces+=1
+                if(foundPieces >= remainingPieces){
                     return result
                 }
             }
         }
     }
     // Lines past here should never run.
-    fmt.println("tools.odin(line38): index >= remainingPieces early exit not hit.")
+    fmt.println("tools.odin(line95): index >= remainingPieces early exit not hit.")
     return result
 }
 
@@ -530,7 +532,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8, fileToInt: map[u8]
             {targetPiece[0] - 2, targetPiece[1] - 1},
         }
         for move in knightMoves {
-            if(enemyColor * state.board[move[0]][move[1]] >= 0) {
+            if(isOnBoard(move[0],move[1]) && enemyColor * state.board[move[0]][move[1]] >= 0) {
                 append(&validTargetMoves, move)
             }
         }
