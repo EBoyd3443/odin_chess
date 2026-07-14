@@ -37,6 +37,7 @@ executeMove :: proc(state: ^Game_State, move: [2][2]i8) {
     //To Do: en passant capture scoring
     //To Do: en passant capture piece cleanup
     //To Do: castling piece movement
+    //To Do: king/queen side castling bool
     if(state.whiteToPlay) {
         if(state.board[move[1][0]][move[1][1]] < 0) {
             state.blackPiecesCaptured += 1
@@ -299,7 +300,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8, fileToInt: map[u8]
 
     switch(pieceType) {
         case BLACK*KING:
-            //ToDo replace king moved with regex on move list
+            //ToDo replace king moved with king/queen side castling on move list
             if(/*!state.blackKingMoved && */
             isEmpty(state.board[0][1]) && isNotAttacked(state, 0, 1) &&
             isEmpty(state.board[0][2]) && isNotAttacked(state, 0, 2) &&
@@ -312,7 +313,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8, fileToInt: map[u8]
                 append(&validTargetMoves, [2]i8{0, 6})
             }
             for i in -1..=1 {
-                for j in -1..=1{
+                for j in -1..=1 {
                     if(isOnBoard(targetPiece[0]+i8(i), targetPiece[1]+i8(j)) &&
                     !containsOwnPiece(ownColor, (state.board[targetPiece[0]+i8(i)][targetPiece[1]+i8(j)]))&&
                     isNotAttacked(state, targetPiece[0]+i8(i), targetPiece[1]+i8(j))) {
@@ -321,7 +322,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8, fileToInt: map[u8]
                 }
             }
         case WHITE*KING:
-            //ToDo replace king moved with regex on move list
+            //ToDo replace king moved with king/queen side castling on move list
             if(/*!state.whiteKingMoved && */
             isEmpty(state.board[7][1]) && isNotAttacked(state, 7, 1) &&
             isEmpty(state.board[7][2]) && isNotAttacked(state, 7, 2) &&

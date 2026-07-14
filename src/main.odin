@@ -20,6 +20,10 @@ Game_State :: struct {
     whitePiecesCaptured: i8,
     blackPiecesCaptured: i8,
     moveList: string,
+    disableWhiteKingSideCastling: bool,
+    disableWhiteQueenSideCastling: bool,
+    disableBlackKingSideCastling: bool,
+    disableBlackQueenSideCastling: bool,
 }
 
 main :: proc() {
