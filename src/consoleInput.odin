@@ -6,8 +6,6 @@ import "core:strings"
 import "core:sync"
 
 inputThread :: proc(state: ^Game_State) {
-
-
     // Get next move.
     for {
         fmt.println("Enter move.")
@@ -20,7 +18,6 @@ inputThread :: proc(state: ^Game_State) {
         // fmt.print("Last move:")
         // fmt.println(strings.trim_space(substringResult))
                 
-        
         buf:[265]byte
         n,err := os.read(os.stdin, buf[:])
 
@@ -52,25 +49,3 @@ inputThread :: proc(state: ^Game_State) {
         }
     }     
 }
-
-/*--------- deprecated in lieu of raylib render -------------*/
-
-// logBoard :: proc(board : [8][8]i8) {
-//     numToPiece:= make(map[i8]u8)
-//     numToPiece[0] = ' '
-//     numToPiece[1] = 'P'
-//     numToPiece[2] = 'B'
-//     numToPiece[3] = 'N'
-//     numToPiece[4] = 'R'
-//     numToPiece[5] = 'Q'
-//     numToPiece[6] = 'K'
-//     fmt.println(" ---------------------------------")
-//     for i in board {
-//         for j in i {
-//             fmt.print(" | ")
-//             fmt.print(rune(numToPiece[(j<0)?-j:j]))
-//         }
-//         fmt.println(" | ")
-//         fmt.println(" ---------------------------------")
-//     }
-// }

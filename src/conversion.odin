@@ -1,6 +1,5 @@
 package chess
 
-
 fileToInt:: proc(char: u8) -> i8 {
     switch char {
     case 'A': return 0
