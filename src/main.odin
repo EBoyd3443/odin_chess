@@ -44,18 +44,6 @@ main :: proc() {
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
-
-    // Not currently used.
-    // fileToChar:= make(map[i8]u8)
-    // defer delete(fileToChar)
-    // fileToChar[0] = 'a'
-    // fileToChar[1] = 'b'
-    // fileToChar[2] = 'c'
-    // fileToChar[3] = 'd'
-    // fileToChar[4] = 'e'
-    // fileToChar[5] = 'f'
-    // fileToChar[6] = 'g'
-    // fileToChar[7] = 'h'
    
     t := thread.create_and_start_with_poly_data(
         &state,

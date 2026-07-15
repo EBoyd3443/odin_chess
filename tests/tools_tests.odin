@@ -236,38 +236,19 @@ isValidMove_tests::proc(t: ^testing.T) {
         blackPiecesCaptured = 0,
     }
 
-    fileToInt:= make(map[u8]i8)
-        defer delete(fileToInt)
-        fileToInt['A'] = 0
-        fileToInt['B'] = 1
-        fileToInt['C'] = 2
-        fileToInt['D'] = 3
-        fileToInt['E'] = 4
-        fileToInt['F'] = 5
-        fileToInt['G'] = 6
-        fileToInt['H'] = 7
-        fileToInt['a'] = 0
-        fileToInt['b'] = 1
-        fileToInt['c'] = 2
-        fileToInt['d'] = 3
-        fileToInt['e'] = 4
-        fileToInt['f'] = 5
-        fileToInt['g'] = 6
-        fileToInt['h'] = 7
-
-    testing.expect(t, chess.isValidMove(&testState, "", fileToInt) == "Move format error.", "isValidMove empty string test failed.")
-    testing.expect(t, chess.isValidMove(&testState, "a1a", fileToInt) == "Move format error.", "isValidMove 3char string test failed.")
-    testing.expect(t, chess.isValidMove(&testState, "a1a3a4", fileToInt) == "Move format error.", "isValidMove 6char string test failed.")
-    testing.expect(t, chess.isValidMove(&testState, "a5a4", fileToInt) == "No piece selected.", "isValidMove no piece selected test failed.")
-    testing.expect(t, chess.isValidMove(&testState, "a7a6", fileToInt) == "Black piece selected when white to play.", "isValidMove black selected when white to play test failed.")
+    testing.expect(t, chess.isValidMove(&testState, "") == "Move format error.", "isValidMove empty string test failed.")
+    testing.expect(t, chess.isValidMove(&testState, "a1a") == "Move format error.", "isValidMove 3char string test failed.")
+    testing.expect(t, chess.isValidMove(&testState, "a1a3a4") == "Move format error.", "isValidMove 6char string test failed.")
+    testing.expect(t, chess.isValidMove(&testState, "a5a4") == "No piece selected.", "isValidMove no piece selected test failed.")
+    testing.expect(t, chess.isValidMove(&testState, "a7a6") == "Black piece selected when white to play.", "isValidMove black selected when white to play test failed.")
     testState.whiteToPlay = false
-    testing.expect(t, chess.isValidMove(&testState, "a2a4", fileToInt) == "White piece selected when black to play.", "isValidMove white selected when black to play test failed.")
+    testing.expect(t, chess.isValidMove(&testState, "a2a4") == "White piece selected when black to play.", "isValidMove white selected when black to play test failed.")
     testState.whiteToPlay = true
-    testing.expect(t, chess.isValidMove(&testState, "a2a8", fileToInt) == "Piece promotion missing from move.", "isValidMove piece promotion(white) failed.")
+    testing.expect(t, chess.isValidMove(&testState, "a2a8") == "Piece promotion missing from move.", "isValidMove piece promotion(white) failed.")
     testState.whiteToPlay = false
-    testing.expect(t, chess.isValidMove(&testState, "a7a1", fileToInt) == "Piece promotion missing from move.", "isValidMove piece promotion(black) failed.")
+    testing.expect(t, chess.isValidMove(&testState, "a7a1") == "Piece promotion missing from move.", "isValidMove piece promotion(black) failed.")
     testState.whiteToPlay = true
-    testing.expect(t, chess.isValidMove(&testState, "a2a4", fileToInt) == "None", "isValidMove valid move failed.")
+    testing.expect(t, chess.isValidMove(&testState, "a2a4") == "None", "isValidMove valid move failed.")
 }
 
 @(test)
@@ -347,24 +328,6 @@ getValidMoves_whitePawnOpening::proc(t: ^testing.T) {
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
-    fileToInt:= make(map[u8]i8)
-    defer delete(fileToInt)
-    fileToInt['A'] = 0
-    fileToInt['B'] = 1
-    fileToInt['C'] = 2
-    fileToInt['D'] = 3
-    fileToInt['E'] = 4
-    fileToInt['F'] = 5
-    fileToInt['G'] = 6
-    fileToInt['H'] = 7
-    fileToInt['a'] = 0
-    fileToInt['b'] = 1
-    fileToInt['c'] = 2
-    fileToInt['d'] = 3
-    fileToInt['e'] = 4
-    fileToInt['f'] = 5
-    fileToInt['g'] = 6
-    fileToInt['h'] = 7    
     expectedResults: [5][dynamic][2]i8
     expectedMove: [2]i8 = {5,0}
     append(&expectedResults[0], expectedMove)
@@ -385,11 +348,11 @@ getValidMoves_whitePawnOpening::proc(t: ^testing.T) {
     }
     
     actualResults: [5][dynamic][2]i8
-    actualResults[0] = chess.getValidMoves(&testState, {6,0}, fileToInt)
-    actualResults[1] = chess.getValidMoves(&testState, {6,1}, fileToInt)
-    actualResults[2] = chess.getValidMoves(&testState, {6,2}, fileToInt)
-    actualResults[3] = chess.getValidMoves(&testState, {6,4}, fileToInt)
-    actualResults[4] = chess.getValidMoves(&testState, {6,7}, fileToInt)
+    actualResults[0] = chess.getValidMoves(&testState, {6,0})
+    actualResults[1] = chess.getValidMoves(&testState, {6,1})
+    actualResults[2] = chess.getValidMoves(&testState, {6,2})
+    actualResults[3] = chess.getValidMoves(&testState, {6,4})
+    actualResults[4] = chess.getValidMoves(&testState, {6,7})
     for i in 0..=4 {
         defer delete(actualResults[i])
     }
@@ -435,24 +398,6 @@ getValidMoves_blackPawnOpening::proc(t: ^testing.T) {
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
-    fileToInt:= make(map[u8]i8)
-    defer delete(fileToInt)
-    fileToInt['A'] = 0
-    fileToInt['B'] = 1
-    fileToInt['C'] = 2
-    fileToInt['D'] = 3
-    fileToInt['E'] = 4
-    fileToInt['F'] = 5
-    fileToInt['G'] = 6
-    fileToInt['H'] = 7
-    fileToInt['a'] = 0
-    fileToInt['b'] = 1
-    fileToInt['c'] = 2
-    fileToInt['d'] = 3
-    fileToInt['e'] = 4
-    fileToInt['f'] = 5
-    fileToInt['g'] = 6
-    fileToInt['h'] = 7
     expectedResults: [5][dynamic][2]i8
     expectedMove: [2]i8 = {3,0}
     append(&expectedResults[0], expectedMove)
@@ -473,11 +418,11 @@ getValidMoves_blackPawnOpening::proc(t: ^testing.T) {
     }
     
     actualResults: [5][dynamic][2]i8
-    actualResults[0] = chess.getValidMoves(&testState, {1,0}, fileToInt)
-    actualResults[1] = chess.getValidMoves(&testState, {1,1}, fileToInt)
-    actualResults[2] = chess.getValidMoves(&testState, {1,2}, fileToInt)
-    actualResults[3] = chess.getValidMoves(&testState, {1,4}, fileToInt)
-    actualResults[4] = chess.getValidMoves(&testState, {1,7}, fileToInt)
+    actualResults[0] = chess.getValidMoves(&testState, {1,0})
+    actualResults[1] = chess.getValidMoves(&testState, {1,1})
+    actualResults[2] = chess.getValidMoves(&testState, {1,2})
+    actualResults[3] = chess.getValidMoves(&testState, {1,4})
+    actualResults[4] = chess.getValidMoves(&testState, {1,7})
     for i in 0..=4 {
         defer delete(actualResults[i])
     }
@@ -523,24 +468,6 @@ getValidMoves_bishopTest::proc(t: ^testing.T) {
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
-    fileToInt:= make(map[u8]i8)
-    defer delete(fileToInt)
-    fileToInt['A'] = 0
-    fileToInt['B'] = 1
-    fileToInt['C'] = 2
-    fileToInt['D'] = 3
-    fileToInt['E'] = 4
-    fileToInt['F'] = 5
-    fileToInt['G'] = 6
-    fileToInt['H'] = 7
-    fileToInt['a'] = 0
-    fileToInt['b'] = 1
-    fileToInt['c'] = 2
-    fileToInt['d'] = 3
-    fileToInt['e'] = 4
-    fileToInt['f'] = 5
-    fileToInt['g'] = 6
-    fileToInt['h'] = 7
     expectedResults: [dynamic][2]i8
     expectedMove: [2]i8 = {2,1}
     append(&expectedResults, expectedMove)
@@ -563,7 +490,7 @@ getValidMoves_bishopTest::proc(t: ^testing.T) {
     defer delete(expectedResults)
     
     actualResults: [dynamic][2]i8
-    actualResults = chess.getValidMoves(&testState, {3,2}, fileToInt)
+    actualResults = chess.getValidMoves(&testState, {3,2})
     defer delete(actualResults)
 
     equivalence:bool
@@ -606,24 +533,6 @@ getValidMoves_knightTest::proc(t: ^testing.T) {
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
-    fileToInt:= make(map[u8]i8)
-    defer delete(fileToInt)
-    fileToInt['A'] = 0
-    fileToInt['B'] = 1
-    fileToInt['C'] = 2
-    fileToInt['D'] = 3
-    fileToInt['E'] = 4
-    fileToInt['F'] = 5
-    fileToInt['G'] = 6
-    fileToInt['H'] = 7
-    fileToInt['a'] = 0
-    fileToInt['b'] = 1
-    fileToInt['c'] = 2
-    fileToInt['d'] = 3
-    fileToInt['e'] = 4
-    fileToInt['f'] = 5
-    fileToInt['g'] = 6
-    fileToInt['h'] = 7
     expectedResults: [2][dynamic][2]i8
     expectedMove: [2]i8 = {0,2}
     append(&expectedResults[0], expectedMove)
@@ -650,8 +559,8 @@ getValidMoves_knightTest::proc(t: ^testing.T) {
     }
     
     actualResults: [2][dynamic][2]i8
-    actualResults[0] = chess.getValidMoves(&testState, {1,0}, fileToInt)
-    actualResults[1] = chess.getValidMoves(&testState, {3,2}, fileToInt)
+    actualResults[0] = chess.getValidMoves(&testState, {1,0})
+    actualResults[1] = chess.getValidMoves(&testState, {3,2})
     for i in 0..=1 {
         defer delete(actualResults[i])
     }
@@ -692,7 +601,7 @@ getValidMoves_knightTest::proc(t: ^testing.T) {
 
 // getBlackPieces :: proc(state: ^Game_State) -> [dynamic][2]i8 
 
-// isValidMove :: proc(state: ^Game_State, move: string, fileToInt: map[u8]i8) -> string 
+// isValidMove :: proc(state: ^Game_State, move: string) -> string 
 
 // isEmpty :: proc(target: i8) -> bool 
 
@@ -702,4 +611,4 @@ getValidMoves_knightTest::proc(t: ^testing.T) {
 
 // isOnBoard :: proc(x: i8, y: i8) -> bool 
 
-// getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8, fileToInt: map[u8]i8) -> [dynamic][2]i8 
+// getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic][2]i8 

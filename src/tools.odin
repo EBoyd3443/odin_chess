@@ -5,30 +5,11 @@ import "core:strings"
 import "core:strconv"
 
 moveStringToArray :: proc(input: string) -> [2][2]i8 {
-    fileToInt:= make(map[u8]i8)
-    defer delete(fileToInt)
-    fileToInt['A'] = 0
-    fileToInt['B'] = 1
-    fileToInt['C'] = 2
-    fileToInt['D'] = 3
-    fileToInt['E'] = 4
-    fileToInt['F'] = 5
-    fileToInt['G'] = 6
-    fileToInt['H'] = 7
-    fileToInt['a'] = 0
-    fileToInt['b'] = 1
-    fileToInt['c'] = 2
-    fileToInt['d'] = 3
-    fileToInt['e'] = 4
-    fileToInt['f'] = 5
-    fileToInt['g'] = 6
-    fileToInt['h'] = 7
-
     result:[2][2]i8
     result[0][0]=i8(7-(input[1]-'1'))
-    result[0][1]=i8(fileToInt[input[0]])
+    result[0][1]=i8(fileToInt(input[0]))
     result[1][0]=i8(7-(input[3]-'1'))
-    result[1][1]=i8(fileToInt[input[2]])
+    result[1][1]=i8(fileToInt(input[2]))
 
     return result
 }
@@ -99,7 +80,7 @@ getBlackPieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
     return result
 }
 
-isValidMove :: proc(state: ^Game_State, move: string, fileToInt: map[u8]i8) -> string {
+isValidMove :: proc(state: ^Game_State, move: string) -> string {
     
     if (len(move) < 4 || len(move) > 5) ||
     !((move[0] >= 'a' && move[0] <= 'h') || (move[0] >= 'A' && move[0] <= 'H'))||
@@ -110,8 +91,8 @@ isValidMove :: proc(state: ^Game_State, move: string, fileToInt: map[u8]i8) -> s
         return "Move format error."
     }
 
-    pieceToMove : i8 = state.board[7-(move[1]-'1')][fileToInt[move[0]]]
-    targetSpave : i8 = state.board[7-(move[3]-'1')][fileToInt[move[2]]]
+    pieceToMove : i8 = state.board[7-(move[1]-'1')][fileToInt(move[0])]
+    targetSpave : i8 = state.board[7-(move[3]-'1')][fileToInt(move[2])]
 
     if(pieceToMove == 0) {
         return "No piece selected."
@@ -291,7 +272,7 @@ isOnBoard :: proc(x: i8, y: i8) -> bool {
 }
 
 
-getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8, fileToInt: map[u8]i8) -> [dynamic][2]i8 {
+getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic][2]i8 {
     pieceType : i8 = state.board[targetPiece[0]][targetPiece[1]]
     ownColor:i8 = state.board[targetPiece[0]][targetPiece[1]]>0?WHITE:BLACK
     enemyColor: i8 = state.board[targetPiece[0]][targetPiece[1]]>0?BLACK:WHITE
@@ -625,25 +606,15 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8, fileToInt: map[u8]
                     lastMove = strings.trim_space(lastMove)
 
                     //build valid en passant last move
-                    fileToChar:= make(map[i8]u8)
-                    defer delete(fileToChar)
-                    fileToChar[0] = 'a'
-                    fileToChar[1] = 'b'
-                    fileToChar[2] = 'c'
-                    fileToChar[3] = 'd'
-                    fileToChar[4] = 'e'
-                    fileToChar[5] = 'f'
-                    fileToChar[6] = 'g'
-                    fileToChar[7] = 'h'
                     validRank:= 8 - targetPiece[0]
                     validEnPassantLastMove:= ""
                     buf: [1]byte
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
-                        strings.clone(string([]u8{fileToChar[targetPiece[1]-1]}))})
+                        strings.clone(string([]u8{fileToChar(targetPiece[1]-1)}))})
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
                         strconv.write_int(buf[:], i64(validRank-2), 10)})
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
-                        strings.clone(string([]u8{fileToChar[targetPiece[1]-1]}))})
+                        strings.clone(string([]u8{fileToChar(targetPiece[1]-1)}))})
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
                         strconv.write_int(buf[:], i64(validRank), 10)})
                     
@@ -658,25 +629,15 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8, fileToInt: map[u8]
                     lastMove = strings.trim_space(lastMove)
 
                     //build valid en passant last move
-                    fileToChar:= make(map[i8]u8)
-                    defer delete(fileToChar)
-                    fileToChar[0] = 'a'
-                    fileToChar[1] = 'b'
-                    fileToChar[2] = 'c'
-                    fileToChar[3] = 'd'
-                    fileToChar[4] = 'e'
-                    fileToChar[5] = 'f'
-                    fileToChar[6] = 'g'
-                    fileToChar[7] = 'h'
                     validRank:= 8 - targetPiece[0]
                     validEnPassantLastMove:= ""
                     buf: [1]byte
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
-                        strings.clone(string([]u8{fileToChar[targetPiece[1]+1]}))})
+                        strings.clone(string([]u8{fileToChar(targetPiece[1]+1)}))})
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
                         strconv.write_int(buf[:], i64(validRank-2), 10)})
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
-                        strings.clone(string([]u8{fileToChar[targetPiece[1]+1]}))})
+                        strings.clone(string([]u8{fileToChar(targetPiece[1]+1)}))})
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
                         strconv.write_int(buf[:], i64(validRank), 10)})
                     if(strings.equal_fold(lastMove,validEnPassantLastMove)) {
@@ -709,25 +670,15 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8, fileToInt: map[u8]
                     lastMove = strings.trim_space(lastMove)
 
                     //build valid en passant last move
-                    fileToChar:= make(map[i8]u8)
-                    defer delete(fileToChar)
-                    fileToChar[0] = 'a'
-                    fileToChar[1] = 'b'
-                    fileToChar[2] = 'c'
-                    fileToChar[3] = 'd'
-                    fileToChar[4] = 'e'
-                    fileToChar[5] = 'f'
-                    fileToChar[6] = 'g'
-                    fileToChar[7] = 'h'
                     validRank:= 8 - targetPiece[0]
                     validEnPassantLastMove:= ""
                     buf: [1]byte
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
-                        strings.clone(string([]u8{fileToChar[targetPiece[1]-1]}))})
+                        strings.clone(string([]u8{fileToChar(targetPiece[1]-1)}))})
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
                         strconv.write_int(buf[:], i64(validRank+2), 10)})
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
-                        strings.clone(string([]u8{fileToChar[targetPiece[1]-1]}))})
+                        strings.clone(string([]u8{fileToChar(targetPiece[1]-1)}))})
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
                         strconv.write_int(buf[:], i64(validRank), 10)})
                     
@@ -742,25 +693,15 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8, fileToInt: map[u8]
                     lastMove = strings.trim_space(lastMove)
 
                     //build valid en passant last move
-                    fileToChar:= make(map[i8]u8)
-                    defer delete(fileToChar)
-                    fileToChar[0] = 'a'
-                    fileToChar[1] = 'b'
-                    fileToChar[2] = 'c'
-                    fileToChar[3] = 'd'
-                    fileToChar[4] = 'e'
-                    fileToChar[5] = 'f'
-                    fileToChar[6] = 'g'
-                    fileToChar[7] = 'h'
                     validRank:= 8 - targetPiece[0]
                     validEnPassantLastMove:= ""
                     buf: [1]byte
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
-                        strings.clone(string([]u8{fileToChar[targetPiece[1]+1]}))})
+                        strings.clone(string([]u8{fileToChar(targetPiece[1]+1)}))})
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
                         strconv.write_int(buf[:], i64(validRank+2), 10)})
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove, 
-                        strings.clone(string([]u8{fileToChar[targetPiece[1]+1]}))})
+                        strings.clone(string([]u8{fileToChar(targetPiece[1]+1)}))})
                     validEnPassantLastMove = strings.concatenate({validEnPassantLastMove,
                         strconv.write_int(buf[:], i64(validRank), 10)})
                     if(strings.equal_fold(lastMove,validEnPassantLastMove)) {

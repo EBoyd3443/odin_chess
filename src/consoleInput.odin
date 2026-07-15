@@ -10,29 +10,10 @@ inputThread :: proc(state: ^Game_State) {
 
     // Get next move.
     for {
-        fileToInt:= make(map[u8]i8)
-        defer delete(fileToInt)
-        fileToInt['A'] = 0
-        fileToInt['B'] = 1
-        fileToInt['C'] = 2
-        fileToInt['D'] = 3
-        fileToInt['E'] = 4
-        fileToInt['F'] = 5
-        fileToInt['G'] = 6
-        fileToInt['H'] = 7
-        fileToInt['a'] = 0
-        fileToInt['b'] = 1
-        fileToInt['c'] = 2
-        fileToInt['d'] = 3
-        fileToInt['e'] = 4
-        fileToInt['f'] = 5
-        fileToInt['g'] = 6
-        fileToInt['h'] = 7
-
         fmt.println("Enter move.")
 
         /*******************  TESTING  *********************************/
-        fmt.println(getValidMoves(state, [2]i8{6,1}, fileToInt))
+        fmt.println(getValidMoves(state, [2]i8{6,1}))
         // fmt.println(state.moveList)
         // substringStart:= len(state.moveList) - 5
         // substringResult, ok:= strings.substring(state.moveList, (substringStart > 0)?substringStart:0, len(state.moveList))
@@ -49,16 +30,12 @@ inputThread :: proc(state: ^Game_State) {
         else {
             input:= string(strings.to_lower(strings.trim_space(string(buf[:n]))))
 
-            inputError: = isValidMove(state, input, fileToInt)
+            inputError: = isValidMove(state, input)
             if(inputError == "None") {
                 sync.mutex_lock(&state.mutex)
                 
                 move:=moveStringToArray(input)
                 executeMove(state, move)
-                
-                // currentPiece := state.board[7-(input[1]-'1')][fileToInt[input[0]]]
-                // state.board[7-(input[1]-'1')][fileToInt[input[0]]] = 0
-                // state.board[7-(input[3]-'1')][fileToInt[input[2]]] = currentPiece
                 
                 if state.moveList == "" {
                     state.moveList = strings.clone(input)
