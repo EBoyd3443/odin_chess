@@ -4,21 +4,34 @@ import "core:fmt"
 import "core:strings"
 import "core:strconv"
 
-moveStringToArray :: proc(input: string) -> [2][2]i8 {
-    result:[2][2]i8
-    result[0][0]=i8(7-(input[1]-'1'))
-    result[0][1]=i8(fileToInt(input[0]))
-    result[1][0]=i8(7-(input[3]-'1'))
-    result[1][1]=i8(fileToInt(input[2]))
-
-    return result
-}
-
 executeMove :: proc(state: ^Game_State, move: [2][2]i8) {
+    // Handle disable castling
+    if(!state.disableBlackKingSideCastling && !state.disableBlackQueenSideCastling && move[0] == {0, 4}) {
+        state.disableBlackKingSideCastling = true
+        state.disableBlackQueenSideCastling = true
+    }
+    if(!state.disableWhiteKingSideCastling && !state.disableWhiteQueenSideCastling && move[0] == {7,4}) {
+        state.disableWhiteKingSideCastling = true
+        state.disableWhiteQueenSideCastling = true
+    }
+    if(!state.disableBlackKingSideCastling && (move[0] == {0,7} || move[1] =={0,7})) {
+        state.disableBlackKingSideCastling = true
+    }
+    if(!state.disableBlackQueenSideCastling && (move[0] == {0,0} || move[1] =={0,0})) {
+        state.disableBlackQueenSideCastling = true
+    }
+    if(!state.disableWhiteKingSideCastling && (move[0] == {7,7} || move[1] =={7,7})) {
+        state.disableWhiteKingSideCastling = true
+    }
+    if(!state.disableWhiteQueenSideCastling && (move[0] == {7,0} || move[1] =={7,0})) {
+        state.disableWhiteQueenSideCastling = true
+    }    
+    
     //To Do: en passant capture scoring
+
     //To Do: en passant capture piece cleanup
-    //To Do: castling piece movement
-    //To Do: king/queen side castling bool
+
+    // Standard move scoring
     if(state.whiteToPlay) {
         if(state.board[move[1][0]][move[1][1]] < 0) {
             state.blackPiecesCaptured += 1
@@ -29,9 +42,28 @@ executeMove :: proc(state: ^Game_State, move: [2][2]i8) {
             state.whitePiecesCaptured += 1
         }
     }
+    // Standard move
     currentPiece := state.board[move[0][0]][move[0][1]]
     state.board[move[0][0]][move[0][1]] = 0
     state.board[move[1][0]][move[1][1]] = currentPiece
+    
+    // Rook castling piece movement
+    if(move == {{0,4},{0,2}} && state.board[0][2] == BLACK*KING) {
+        state.board[0][0] = 0
+        state.board[0][3] = BLACK*ROOK
+    }
+    if(move == {{0,4},{0,6}} && state.board[0][6] == BLACK*KING) {
+        state.board[0][7] = 0
+        state.board[0][5] = BLACK*ROOK
+    }
+    if(move == {{7,4},{7,2}} && state.board[7][2] == WHITE*KING) {
+        state.board[7][0] = 0
+        state.board[7][3] = WHITE*ROOK
+    }
+    if(move == {{7,4},{7,6}} && state.board[7][6] == WHITE*KING) {
+        state.board[7][7] = 0
+        state.board[7][5] = WHITE*ROOK
+    }
 }
 
 getWhitePieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
@@ -271,7 +303,6 @@ isOnBoard :: proc(x: i8, y: i8) -> bool {
     return x >= 0 && x < 8 && y >= 0 && y < 8
 }
 
-
 getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic][2]i8 {
     pieceType : i8 = state.board[targetPiece[0]][targetPiece[1]]
     ownColor:i8 = state.board[targetPiece[0]][targetPiece[1]]>0?WHITE:BLACK
@@ -281,14 +312,13 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic][2]i8 
 
     switch(pieceType) {
         case BLACK*KING:
-            //ToDo replace king moved with king/queen side castling on move list
-            if(/*!state.blackKingMoved && */
+            if(!state.disableBlackQueenSideCastling && 
             isEmpty(state.board[0][1]) && isNotAttacked(state, 0, 1) &&
             isEmpty(state.board[0][2]) && isNotAttacked(state, 0, 2) &&
             isEmpty(state.board[0][3]) && isNotAttacked(state, 0, 3)) {
                 append(&validTargetMoves, [2]i8{0, 2})
             }
-            if(/*!state.blackKingMoved && */
+            if(!state.disableBlackKingSideCastling &&
             isEmpty(state.board[0][5]) && isNotAttacked(state, 0, 5) &&
             isEmpty(state.board[0][6]) && isNotAttacked(state, 0, 6)) {
                 append(&validTargetMoves, [2]i8{0, 6})
@@ -303,14 +333,13 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic][2]i8 
                 }
             }
         case WHITE*KING:
-            //ToDo replace king moved with king/queen side castling on move list
-            if(/*!state.whiteKingMoved && */
+            if(!state.disableWhiteQueenSideCastling &&
             isEmpty(state.board[7][1]) && isNotAttacked(state, 7, 1) &&
             isEmpty(state.board[7][2]) && isNotAttacked(state, 7, 2) &&
             isEmpty(state.board[7][3]) && isNotAttacked(state, 7, 3)) {
                 append(&validTargetMoves, [2]i8{7, 2})
             }
-            if(/*!state.whiteKingMoved && */
+            if(!state.disableWhiteKingSideCastling &&
             isEmpty(state.board[7][5]) && isNotAttacked(state, 7, 5) &&
             isEmpty(state.board[7][6]) && isNotAttacked(state, 7, 6)) {
                 append(&validTargetMoves, [2]i8{7, 6})

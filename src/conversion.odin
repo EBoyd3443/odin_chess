@@ -37,3 +37,13 @@ fileToChar:: proc(num: i8) -> u8 {
     //error
     panic("Invalid file passed to fileToChar")
 }
+
+moveStringToArray :: proc(input: string) -> [2][2]i8 {
+    result:[2][2]i8
+    result[0][0]=i8(7-(input[1]-'1'))
+    result[0][1]=i8(fileToInt(input[0]))
+    result[1][0]=i8(7-(input[3]-'1'))
+    result[1][1]=i8(fileToInt(input[2]))
+
+    return result
+}
