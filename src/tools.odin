@@ -77,6 +77,20 @@ executeMove :: proc(state: ^Game_State, move: [2][2]i8) {
     state.whiteToPlay = (state.whiteToPlay)?false:true
 }
 
+promotePawn :: proc(state: ^Game_State, move: [2][2]i8, promotion: u8) {
+    color: i8 = (state.board[move[1][0]][move[1][1]] > 0)?1:-1
+    switch promotion {
+        case 'r': fallthrough
+        case 'R': state.board[move[1][0]][move[1][1]] = color*ROOK
+        case 'n': fallthrough
+        case 'N': state.board[move[1][0]][move[1][1]] = color*KNIGHT
+        case 'b': fallthrough
+        case 'B': state.board[move[1][0]][move[1][1]] = color*BISHOP
+        case 'q': fallthrough
+        case 'Q': state.board[move[1][0]][move[1][1]] = color*QUEEN
+    }
+}
+
 getWhitePieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
     remainingPieces:= 16-state.whitePiecesCaptured
     //fmt.print("White remaining: ")
@@ -148,8 +162,27 @@ isValidMoveFormat :: proc(state: ^Game_State, move: string) -> string {
     }
 
     if((pieceToMove == 1 && move[3] == '8' && len(move) != 5) ||
-        (pieceToMove == -1 && move[3] == '1' && len(move) != 5)) {
+    (pieceToMove == -1 && move[3] == '1' && len(move) != 5)) {
         return "Piece promotion missing from move."
+    }
+
+    if(len(move) == 5) {
+        if(pieceToMove == 1 && move[3] == '8' || pieceToMove == -1 && move[3] == '1') {
+            switch move[4] {
+                case 'r': fallthrough
+                case 'R': fallthrough
+                case 'n': fallthrough
+                case 'N': fallthrough
+                case 'b': fallthrough
+                case 'B': fallthrough
+                case 'q': fallthrough
+                case 'Q': return "None"
+                case: return "Invalid piece promotion."
+            } 
+        }
+        else {
+            return "Invalid move for promotion"
+        }
     }
 
     return "None"
@@ -690,11 +723,11 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic][2]i8 
             }
             if(isOnBoard(targetPiece[0]-1, targetPiece[1]+1) &&
                 state.board[targetPiece[0]-1][targetPiece[1]+1] < 0) {
-                append(&validTargetMoves, [2]i8{targetPiece[0]+1, targetPiece[1]+1})
+                append(&validTargetMoves, [2]i8{targetPiece[0]-1, targetPiece[1]+1})
             }
             if(isOnBoard(targetPiece[0]-1, targetPiece[1]-1) && 
             state.board[targetPiece[0]-1][targetPiece[1]-1] < 0) {
-                append(&validTargetMoves, [2]i8{targetPiece[0]+1, targetPiece[1]-1})
+                append(&validTargetMoves, [2]i8{targetPiece[0]-1, targetPiece[1]-1})
             }
             if(targetPiece[0] == 6 && isEmpty(state.board[targetPiece[0]-1][targetPiece[1]]) &&
             isEmpty(state.board[targetPiece[0]-2][targetPiece[1]])) {

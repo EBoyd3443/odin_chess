@@ -11,7 +11,6 @@ inputThread :: proc(state: ^Game_State) {
         fmt.println("Enter move.")
 
         /*******************  TESTING  *********************************/
-        // fmt.println(getValidMoves(state, [2]i8{6,1}))
         // fmt.println(state.moveList)
         // substringStart:= len(state.moveList) - 5
         // substringResult, ok:= strings.substring(state.moveList, (substringStart > 0)?substringStart:0, len(state.moveList))
@@ -40,6 +39,9 @@ inputThread :: proc(state: ^Game_State) {
                 }
                 if(isAllowed) {
                     executeMove(state, move)
+                    if(len(input) == 5) {
+                        promotePawn(state, move, input[4])
+                    }
                 }
                 else {
                     fmt.println("Selected piece can't move there.")
