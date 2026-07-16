@@ -27,25 +27,38 @@ inputThread :: proc(state: ^Game_State) {
         else {
             input:= string(strings.to_lower(strings.trim_space(string(buf[:n]))))
 
-            inputError: = isValidMove(state, input)
+            sync.mutex_lock(&state.mutex)
+            inputError: = isValidMoveFormat(state, input)
             if(inputError == "None") {
-                sync.mutex_lock(&state.mutex)
+                move:= moveStringToArray(input)
+                isAllowed:= false
+                validMoves:= getValidMoves(state, move[0])
+                for validMove in validMoves {
+                    if(move[1] == validMove) {
+                        isAllowed = true
+                    }
+                }
+                if(isAllowed) {
+                    executeMove(state, move)
+                }
+                else {
+                    fmt.println("Selected piece can't move there.")
+                }
                 
-                move:=moveStringToArray(input)
-                executeMove(state, move)
-                
+                // Update move list
                 if state.moveList == "" {
                     state.moveList = strings.clone(input)
                 } else {
                     state.moveList = strings.concatenate({state.moveList, "\n", input})
                 }
                 
-                sync.mutex_unlock(&state.mutex)
-                //fmt.print("\x1b[2J\x1b[H")
+                // Clear console window
+                // fmt.print("\x1b[2J\x1b[H")
             }
             else {
                 fmt.println(inputError)
             }
+            sync.mutex_unlock(&state.mutex)
         }
     }     
 }

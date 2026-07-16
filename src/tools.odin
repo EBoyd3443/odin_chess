@@ -27,9 +27,17 @@ executeMove :: proc(state: ^Game_State, move: [2][2]i8) {
         state.disableWhiteQueenSideCastling = true
     }    
     
-    //To Do: en passant capture scoring
-
-    //To Do: en passant capture piece cleanup
+    // En passant scoring and cleanup
+    if(state.board[move[0][0]][move[0][1]] == BLACK*PAWN && move[0][0] == 4 && move[0][1] != move[1][1] &&
+    state.board[move[1][0]][move[1][1]] == 0) {
+        state.whitePiecesCaptured += 1
+        state.board[move[0][0]][move[1][1]] = 0
+    }
+    if(state.board[move[0][0]][move[0][1]] == WHITE*PAWN && move[0][0] == 3 && move[0][1] != move[1][1] &&
+    state.board[move[1][0]][move[1][1]] == 0) {
+        state.blackPiecesCaptured += 1
+        state.board[move[0][0]][move[1][1]] = 0
+    }
 
     // Standard move scoring
     if(state.whiteToPlay) {
@@ -64,6 +72,9 @@ executeMove :: proc(state: ^Game_State, move: [2][2]i8) {
         state.board[7][7] = 0
         state.board[7][5] = WHITE*ROOK
     }
+
+    // Update who's turn it is.
+    state.whiteToPlay = (state.whiteToPlay)?false:true
 }
 
 getWhitePieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
@@ -112,7 +123,7 @@ getBlackPieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
     return result
 }
 
-isValidMove :: proc(state: ^Game_State, move: string) -> string {
+isValidMoveFormat :: proc(state: ^Game_State, move: string) -> string {
     
     if (len(move) < 4 || len(move) > 5) ||
     !((move[0] >= 'a' && move[0] <= 'h') || (move[0] >= 'A' && move[0] <= 'H'))||
@@ -141,7 +152,6 @@ isValidMove :: proc(state: ^Game_State, move: string) -> string {
         return "Piece promotion missing from move."
     }
 
-    state.whiteToPlay = (pieceToMove > 0)?false:true
     return "None"
 }
 
