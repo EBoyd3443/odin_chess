@@ -50,10 +50,18 @@ executeMove :: proc(state: ^Game_State, move: [2][2]i8) {
             state.whitePiecesCaptured += 1
         }
     }
+
     // Standard move
     currentPiece := state.board[move[0][0]][move[0][1]]
     state.board[move[0][0]][move[0][1]] = 0
     state.board[move[1][0]][move[1][1]] = currentPiece
+
+    if(currentPiece == WHITE*KING) {
+        state.whiteKingPosition = {move[1][0], move[1][1]}
+    }
+    if(currentPiece == BLACK*KING) {
+        state.blackKingPosition = {move[1][0], move[1][1]}
+    }
     
     // Rook castling piece movement
     if(move == {{0,4},{0,2}} && state.board[0][2] == BLACK*KING) {
@@ -93,8 +101,6 @@ promotePawn :: proc(state: ^Game_State, move: [2][2]i8, promotion: u8) {
 
 getWhitePieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
     remainingPieces:= 16-state.whitePiecesCaptured
-    //fmt.print("White remaining: ")
-    //fmt.println(remainingPieces)
     result:[dynamic][2]i8
     defer delete(result)
     foundPieces: i8 = 0
@@ -196,7 +202,7 @@ containsOwnPiece :: proc(ownColor: i8, target: i8) -> bool {
     return target * ownColor > 0
 }
 
-isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
+isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8) -> bool {
     color: i8 = (state.whiteToPlay)? -1: 1
     if(isOnBoard(y + color, x + 1) && state.board[y+color][x+1] == color * PAWN) {
         return false
@@ -209,7 +215,7 @@ isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
     for i:i8=x+1; i<8; i+=1 {
         target: i8 = state.board[y][i]
         
-        if(target == color * QUEEN || target == color * ROOK){
+        if(target == color * QUEEN || target == color * ROOK) {
             return false
         }
         if(target != 0) {
@@ -221,7 +227,7 @@ isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
     for i:i8=x-1; i>=0; i-=1 {
         target: i8 = state.board[y][i]
         
-        if(target == color * QUEEN || target == color * ROOK){
+        if(target == color * QUEEN || target == color * ROOK) {
             return false
         }
         if(target != 0) {
@@ -233,7 +239,7 @@ isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
     for i:i8=y+1; i<8; i+=1 {
         target: i8 = state.board[i][x]
         
-        if(target == color * QUEEN || target == color * ROOK){
+        if(target == color * QUEEN || target == color * ROOK) {
             return false
         }
         if(target != 0) {
@@ -245,7 +251,7 @@ isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
     for i:i8=y-1; i>=0; i-=1 {
         target: i8 = state.board[i][x]
         
-        if(target == color * QUEEN || target == color * ROOK){
+        if(target == color * QUEEN || target == color * ROOK) {
             return false
         }
         if(target != 0) {
@@ -259,7 +265,7 @@ isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
     for i:i8=1; isOnBoard(x+i, y+i); i+=1 {
         target: i8 = state.board[y+i][x+i]
         
-        if(target == color * QUEEN || target == color * BISHOP){
+        if(target == color * QUEEN || target == color * BISHOP) {
             return false
         }
         if(target != 0) {
@@ -271,7 +277,7 @@ isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
     for i:i8=1; isOnBoard(x+i, y-i); i+=1 {
         target: i8 = state.board[y-i][x+i]
         
-        if(target == color * QUEEN || target == color * BISHOP){
+        if(target == color * QUEEN || target == color * BISHOP) {
             return false
         }
         if(target != 0) {
@@ -283,7 +289,7 @@ isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
     for i:i8=1; isOnBoard(x-i, y+i); i+=1 {
         target: i8 = state.board[y+i][x-i]
         
-        if(target == color * QUEEN || target == color * BISHOP){
+        if(target == color * QUEEN || target == color * BISHOP) {
             return false
         }
         if(target != 0) {
@@ -295,7 +301,7 @@ isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
     for i:i8=1; isOnBoard(x-i, y-i); i+=1 {
         target: i8 = state.board[y-i][x-i]
         
-        if(target == color * QUEEN || target == color * BISHOP){
+        if(target == color * QUEEN || target == color * BISHOP) {
             return false
         }
         if(target != 0) {
@@ -316,7 +322,7 @@ isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
     }
     for i in knightMoves {
         if(isOnBoard(i[1], i[0])) {
-            if(state.board[i[1]][i[0]] == color * KNIGHT){
+            if(state.board[i[1]][i[0]] == color * KNIGHT) {
                 return false
             }
         }
@@ -334,7 +340,7 @@ isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool {
     }
     for i in kingMoves {
         if(isOnBoard(i[1], i[0])) {
-            if(state.board[i[1]][i[0]] == color * KING){
+            if(state.board[i[1]][i[0]] == color * KING) {
                 return false
             }
         }

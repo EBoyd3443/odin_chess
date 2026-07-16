@@ -236,19 +236,19 @@ isValidMove_tests::proc(t: ^testing.T) {
         blackPiecesCaptured = 0,
     }
 
-    testing.expect(t, chess.isValidMove(&testState, "") == "Move format error.", "isValidMove empty string test failed.")
-    testing.expect(t, chess.isValidMove(&testState, "a1a") == "Move format error.", "isValidMove 3char string test failed.")
-    testing.expect(t, chess.isValidMove(&testState, "a1a3a4") == "Move format error.", "isValidMove 6char string test failed.")
-    testing.expect(t, chess.isValidMove(&testState, "a5a4") == "No piece selected.", "isValidMove no piece selected test failed.")
-    testing.expect(t, chess.isValidMove(&testState, "a7a6") == "Black piece selected when white to play.", "isValidMove black selected when white to play test failed.")
+    testing.expect(t, chess.isValidMoveFormat(&testState, "") == "Move format error.", "isValidMove empty string test failed.")
+    testing.expect(t, chess.isValidMoveFormat(&testState, "a1a") == "Move format error.", "isValidMove 3char string test failed.")
+    testing.expect(t, chess.isValidMoveFormat(&testState, "a1a3a4") == "Move format error.", "isValidMove 6char string test failed.")
+    testing.expect(t, chess.isValidMoveFormat(&testState, "a5a4") == "No piece selected.", "isValidMove no piece selected test failed.")
+    testing.expect(t, chess.isValidMoveFormat(&testState, "a7a6") == "Black piece selected when white to play.", "isValidMove black selected when white to play test failed.")
     testState.whiteToPlay = false
-    testing.expect(t, chess.isValidMove(&testState, "a2a4") == "White piece selected when black to play.", "isValidMove white selected when black to play test failed.")
+    testing.expect(t, chess.isValidMoveFormat(&testState, "a2a4") == "White piece selected when black to play.", "isValidMove white selected when black to play test failed.")
     testState.whiteToPlay = true
-    testing.expect(t, chess.isValidMove(&testState, "a2a8") == "Piece promotion missing from move.", "isValidMove piece promotion(white) failed.")
+    testing.expect(t, chess.isValidMoveFormat(&testState, "a2a8") == "Piece promotion missing from move.", "isValidMove piece promotion(white) failed.")
     testState.whiteToPlay = false
-    testing.expect(t, chess.isValidMove(&testState, "a7a1") == "Piece promotion missing from move.", "isValidMove piece promotion(black) failed.")
+    testing.expect(t, chess.isValidMoveFormat(&testState, "a7a1") == "Piece promotion missing from move.", "isValidMove piece promotion(black) failed.")
     testState.whiteToPlay = true
-    testing.expect(t, chess.isValidMove(&testState, "a2a4") == "None", "isValidMove valid move failed.")
+    testing.expect(t, chess.isValidMoveFormat(&testState, "a2a4") == "None", "isValidMove valid move failed.")
 }
 
 @(test)
@@ -292,9 +292,9 @@ isNotAttacked_test::proc(t: ^testing.T) {
     }
     for x in 0..=7 {
         for y in 0..=7 {
-            message:= fmt.aprintf("isNotAttacked test failed at (%d,%d)",x,y)
+            message:= fmt.aprintf("isNotAttacked test failed at (%d,%d)",y,x)
             defer delete(message)
-            testing.expect(t, chess.isNotAttacked(&testState, i8(x), i8(y)) == expectedResult[y][x], message)
+            testing.expect(t, chess.isNotAttacked(&testState, i8(y), i8(x)) == expectedResult[y][x], message)
         }
     }
 }
@@ -607,7 +607,7 @@ getValidMoves_knightTest::proc(t: ^testing.T) {
 
 // containsOwnPiece :: proc(ownColor: i8, target: i8) -> bool 
 
-// isNotAttacked :: proc(state: ^Game_State, x: i8, y: i8) -> bool 
+// isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8) -> bool 
 
 // isOnBoard :: proc(x: i8, y: i8) -> bool 
 

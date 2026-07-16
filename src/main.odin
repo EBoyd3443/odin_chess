@@ -13,36 +13,60 @@ ROOK: i8 = 4
 QUEEN: i8 = 5
 KING: i8 = 6
 
-Game_State :: struct {
+// To Do: Checkmate.
+// To Do: More testing of Check implementation.
+
+Shared_State :: struct {
     mutex: sync.Mutex,
+    gameState: Game_State,
+}
+
+Game_State :: struct {
     board: [8][8]i8,
     whiteToPlay: bool,
     whitePiecesCaptured: i8,
     blackPiecesCaptured: i8,
-    moveList: string,
+    whiteKingPosition: [2]i8,
+    blackKingPosition: [2]i8,
     disableWhiteKingSideCastling: bool,
     disableWhiteQueenSideCastling: bool,
     disableBlackKingSideCastling: bool,
     disableBlackQueenSideCastling: bool,
+    moveList: string,
 }
 
 main :: proc() {
     //color: (-) => black, (+) => white
     //pieces: 1 => pawn, 2 => bishop, 3 => knight, 4 => rook, 5 => queen, 6 => king
-    state := Game_State {
-        board = {
-            { BLACK*ROOK, BLACK*KNIGHT, BLACK*BISHOP, BLACK*QUEEN, BLACK*KING, BLACK*BISHOP, BLACK*KNIGHT, BLACK*ROOK},
-            { BLACK*PAWN, BLACK*PAWN,   BLACK*PAWN,   BLACK*PAWN,  BLACK*PAWN, BLACK*PAWN,   BLACK*PAWN,   BLACK*PAWN},
-            { 0,          0,            0,            0,           0,          0,            0,            0         },
-            { 0,          0,            0,            0,           0,          0,            0,            0         },
-            { 0,          0,            0,            0,           0,          0,            0,            0         },
-            { 0,          0,            0,            0,           0,          0,            0,            0         },
-            { WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN,  WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN},
-            { WHITE*ROOK, WHITE*KNIGHT, WHITE*BISHOP, WHITE*QUEEN, WHITE*KING, WHITE*BISHOP, WHITE*KNIGHT, WHITE*ROOK},
-        },
-        whiteToPlay = true,
-        whitePiecesCaptured = 0,
-        blackPiecesCaptured = 0,
+    state := Shared_State {
+        gameState = {
+            board ={
+                { BLACK*ROOK, BLACK*KNIGHT, BLACK*BISHOP, BLACK*QUEEN, BLACK*KING, BLACK*BISHOP, BLACK*KNIGHT, BLACK*ROOK},
+                { BLACK*PAWN, BLACK*PAWN,   BLACK*PAWN,   BLACK*PAWN,  BLACK*PAWN, BLACK*PAWN,   BLACK*PAWN,   BLACK*PAWN},
+                { 0,          0,            0,            0,           0,          0,            0,            0         },
+                { 0,          0,            0,            0,           0,          0,            0,            0         },
+                { 0,          0,            0,            0,           0,          0,            0,            0         },
+                { 0,          0,            0,            0,           0,          0,            0,            0         },
+                { WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN,  WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN},
+                { WHITE*ROOK, WHITE*KNIGHT, WHITE*BISHOP, WHITE*QUEEN, WHITE*KING, WHITE*BISHOP, WHITE*KNIGHT, WHITE*ROOK},
+            },
+            // Test Board
+            // board = {
+            //     { BLACK*ROOK, BLACK*KNIGHT, BLACK*BISHOP, BLACK*QUEEN, BLACK*KING, BLACK*BISHOP, BLACK*KNIGHT, BLACK*ROOK},
+            //     { BLACK*PAWN, BLACK*PAWN,   BLACK*PAWN,   0,           BLACK*PAWN, BLACK*PAWN,   BLACK*PAWN,   BLACK*PAWN},
+            //     { 0,          0,            0,            0,           0,          0,            0,            0         },
+            //     { 0,          0,            0,            BLACK*PAWN,  0,          0,            0,            0         },
+            //     { 0,          0,            0,            WHITE*KING,  0,          0,            0,            0         },
+            //     { 0,          0,            0,            0,           0,          0,            0,            0         },
+            //     { WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN,  WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN},
+            //     { WHITE*ROOK, WHITE*KNIGHT, WHITE*BISHOP, WHITE*QUEEN, 0,          WHITE*BISHOP, WHITE*KNIGHT, WHITE*ROOK},
+            // },
+            whiteToPlay = true,
+            whitePiecesCaptured = 0,
+            blackPiecesCaptured = 0,
+            whiteKingPosition = {7,4},
+            blackKingPosition = {0,4},
+        }
     }
    
     t := thread.create_and_start_with_poly_data(
@@ -50,5 +74,5 @@ main :: proc() {
         inputThread,
     )
 
-    rlBoard(state.board) 
+    rlBoard(state.gameState.board)
 }

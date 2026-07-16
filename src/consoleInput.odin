@@ -5,17 +5,13 @@ import "core:os"
 import "core:strings"
 import "core:sync"
 
-inputThread :: proc(state: ^Game_State) {
+inputThread :: proc(state: ^Shared_State) {
     // Get next move.
     for {
         fmt.println("Enter move.")
 
         /*******************  TESTING  *********************************/
-        // fmt.println(state.moveList)
-        // substringStart:= len(state.moveList) - 5
-        // substringResult, ok:= strings.substring(state.moveList, (substringStart > 0)?substringStart:0, len(state.moveList))
-        // fmt.print("Last move:")
-        // fmt.println(strings.trim_space(substringResult))
+        //fmt.println(state.gameState.whiteKingPosition)
                 
         buf:[265]byte
         n,err := os.read(os.stdin, buf[:])
@@ -27,31 +23,57 @@ inputThread :: proc(state: ^Game_State) {
             input:= string(strings.to_lower(strings.trim_space(string(buf[:n]))))
 
             sync.mutex_lock(&state.mutex)
-            inputError: = isValidMoveFormat(state, input)
+            inputError: = isValidMoveFormat(&state.gameState, input)
             if(inputError == "None") {
                 move:= moveStringToArray(input)
                 isAllowed:= false
-                validMoves:= getValidMoves(state, move[0])
+                validMoves:= getValidMoves(&state.gameState, move[0])
                 for validMove in validMoves {
                     if(move[1] == validMove) {
                         isAllowed = true
                     }
                 }
-                if(isAllowed) {
-                    executeMove(state, move)
-                    if(len(input) == 5) {
-                        promotePawn(state, move, input[4])
+                moveExecuted:= false
+                if(isAllowed && !isNotAttacked(&state.gameState, 
+                (state.gameState.whiteToPlay)?state.gameState.whiteKingPosition[0]:state.gameState.blackKingPosition[0],
+                (state.gameState.whiteToPlay)?state.gameState.whiteKingPosition[1]:state.gameState.blackKingPosition[1])) {
+                    fmt.println("check")
+                    simulateGameState:= state.gameState
+                    executeMove(&simulateGameState, move)
+                    simulateGameState.whiteToPlay = !simulateGameState.whiteToPlay
+                    if(isNotAttacked(&simulateGameState, 
+                    (simulateGameState.whiteToPlay)?simulateGameState.whiteKingPosition[0]:simulateGameState.blackKingPosition[0],
+                    (simulateGameState.whiteToPlay)?simulateGameState.whiteKingPosition[1]:simulateGameState.blackKingPosition[1])) {
+                        executeMove(&state.gameState, move)
+                        if(len(input) == 5) {
+                            promotePawn(&state.gameState, move, input[4])
+                        }
+                        moveExecuted = true
                     }
+                    else {
+                        fmt.println("Cant make that move while in check.")
+                    }                  
                 }
-                else {
-                    fmt.println("Selected piece can't move there.")
+                else{
+                    if(isAllowed) {
+                        executeMove(&state.gameState, move)
+                        if(len(input) == 5) {
+                            promotePawn(&state.gameState, move, input[4])
+                        }
+                        moveExecuted = true
+                    }
+                    else {
+                        fmt.println("Selected piece can't move there.")
+                    }
                 }
                 
                 // Update move list
-                if state.moveList == "" {
-                    state.moveList = strings.clone(input)
-                } else {
-                    state.moveList = strings.concatenate({state.moveList, "\n", input})
+                if(moveExecuted) {
+                    if state.gameState.moveList == "" {
+                        state.gameState.moveList = strings.clone(input)
+                    } else {
+                        state.gameState.moveList = strings.concatenate({state.gameState.moveList, "\n", input})
+                    }
                 }
                 
                 // Clear console window
