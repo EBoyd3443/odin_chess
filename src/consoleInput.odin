@@ -37,13 +37,11 @@ inputThread :: proc(state: ^Shared_State) {
                 if(isAllowed && !isNotAttacked(&state.gameState, 
                 (state.gameState.whiteToPlay)?state.gameState.whiteKingPosition[0]:state.gameState.blackKingPosition[0],
                 (state.gameState.whiteToPlay)?state.gameState.whiteKingPosition[1]:state.gameState.blackKingPosition[1])) {
-                    fmt.println("check")
-                    simulateGameState:= state.gameState
-                    executeMove(&simulateGameState, move)
-                    simulateGameState.whiteToPlay = !simulateGameState.whiteToPlay
-                    if(isNotAttacked(&simulateGameState, 
-                    (simulateGameState.whiteToPlay)?simulateGameState.whiteKingPosition[0]:simulateGameState.blackKingPosition[0],
-                    (simulateGameState.whiteToPlay)?simulateGameState.whiteKingPosition[1]:simulateGameState.blackKingPosition[1])) {
+                    undoMove:= exploreMove(&state.gameState, move, input)
+                    if(isNotAttacked(&state.gameState, 
+                    (state.gameState.whiteToPlay)?state.gameState.whiteKingPosition[0]:state.gameState.blackKingPosition[0],
+                    (state.gameState.whiteToPlay)?state.gameState.whiteKingPosition[1]:state.gameState.blackKingPosition[1])) {
+                        reverseExplore(&state.gameState, undoMove)
                         executeMove(&state.gameState, move)
                         if(len(input) == 5) {
                             promotePawn(&state.gameState, move, input[4])
@@ -52,7 +50,7 @@ inputThread :: proc(state: ^Shared_State) {
                     }
                     else {
                         fmt.println("Cant make that move while in check.")
-                    }                  
+                    }
                 }
                 else{
                     if(isAllowed) {

@@ -13,8 +13,9 @@ ROOK: i8 = 4
 QUEEN: i8 = 5
 KING: i8 = 6
 
-// To Do: Checkmate.
+// To Do: Checkmate & Stalemate.
 // To Do: More testing of Check implementation.
+// To Do: Handle pinned to king
 
 Shared_State :: struct {
     mutex: sync.Mutex,
@@ -33,6 +34,33 @@ Game_State :: struct {
     disableBlackKingSideCastling: bool,
     disableBlackQueenSideCastling: bool,
     moveList: string,
+}
+
+Move_Type :: enum {
+    standard,
+    capture,
+    enPassant,
+    castling,
+}
+
+Reversible_Move :: struct {
+    moveType: Move_Type,
+    from: [2]i8,
+    to: [2]i8,
+
+    movedPiece: i8,
+    capturedPiece: i8,
+
+    piecePromotion: i8,
+    castlingRook: i8,
+    castlingRookSquares: [2][2]i8,
+    enPassantCaptureSquare: [2]i8,
+    whitePiecesCaptured: i8,
+    blackPiecesCaptured: i8,
+    disableWhiteKingSideCastling: bool,
+    disableWhiteQueenSideCastling: bool,
+    disableBlackKingSideCastling: bool,
+    disableBlackQueenSideCastling: bool,
 }
 
 main :: proc() {
