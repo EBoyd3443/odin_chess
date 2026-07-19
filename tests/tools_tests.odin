@@ -15,35 +15,36 @@ ROOK:= chess.ROOK
 QUEEN:= chess.QUEEN
 KING:= chess.KING
 
-@(test)
-moveStringToArray_withinRange::proc(t: ^testing.T) {
-    stringList:[8]string={"a1A8","b2B7","c3C6","d4D5","E5e4","F6f3","G7g2","H8h1"}
-    procedureResult: [8][2][2]i8
-    for i in 0..=7 {
-        procedureResult[i] = chess.moveStringToArray(stringList[i])
-    }
-    expectedResult: [8][2][2]i8 = {
-        {{7,0},{0,0}},
-        {{6,1},{1,1}},
-        {{5,2},{2,2}},
-        {{4,3},{3,3}},
-        {{3,4},{4,4}},
-        {{2,5},{5,5}},
-        {{1,6},{6,6}},
-        {{0,7},{7,7}},
-    }
-    equivalence:=true
-    for z in 0..=7 {
-        for i in 0..=1 {
-            for j in 0..=1 {
-                if(expectedResult[z][i][j] != procedureResult[z][i][j]) {
-                    equivalence = false
-                }
-            }
-        }
-    }
-    testing.expect(t, equivalence, "moveStringToArray within range test failed.")
-}
+// Depricated -> To Do: Make version for moveStringToBasicMove
+// @(test)
+// moveStringToArray_withinRange::proc(t: ^testing.T) {
+//     stringList:[8]string={"a1A8","b2B7","c3C6","d4D5","E5e4","F6f3","G7g2","H8h1"}
+//     procedureResult: [8][2][2]i8
+//     for i in 0..=7 {
+//         procedureResult[i] = chess.moveStringToArray(stringList[i])
+//     }
+//     expectedResult: [8][2][2]i8 = {
+//         {{7,0},{0,0}},
+//         {{6,1},{1,1}},
+//         {{5,2},{2,2}},
+//         {{4,3},{3,3}},
+//         {{3,4},{4,4}},
+//         {{2,5},{5,5}},
+//         {{1,6},{6,6}},
+//         {{0,7},{7,7}},
+//     }
+//     equivalence:=true
+//     for z in 0..=7 {
+//         for i in 0..=1 {
+//             for j in 0..=1 {
+//                 if(expectedResult[z][i][j] != procedureResult[z][i][j]) {
+//                     equivalence = false
+//                 }
+//             }
+//         }
+//     }
+//     testing.expect(t, equivalence, "moveStringToArray within range test failed.")
+// }
 
 @(test)
 executeMove_simpleTest::proc(t: ^testing.T) {
@@ -62,7 +63,12 @@ executeMove_simpleTest::proc(t: ^testing.T) {
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
-    testMove:[2][2]i8 = {{7,0},{5,1}}
+    testMove : chess.Basic_Move = {
+        moveType = chess.Move_Type.standard,
+        from = {7,0},
+        to = {5,1},
+        piecePromotion = 0,
+    }
     intendedBoard:[8][8]i8 = {
         { 0,            0,            0,            0,           0,          0,            0,            0         },
         { 0,            0,            0,            0,           0,          0,            0,            0         },
@@ -328,26 +334,47 @@ getValidMoves_whitePawnOpening::proc(t: ^testing.T) {
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
-    expectedResults: [5][dynamic][2]i8
-    expectedMove: [2]i8 = {5,0}
+    expectedResults: [5][dynamic]chess.Basic_Move
+    expectedMove: chess.Basic_Move = {
+        from = {6,0},
+        to = {5,0}
+    }
     append(&expectedResults[0], expectedMove)
-    expectedMove = {4,0}
+    expectedMove = {
+        from = {6,0},
+        to = {4,0}
+    }
     append(&expectedResults[0], expectedMove)
-    expectedMove = {5,2}
+    expectedMove = {
+        from = {6,2},
+        to = {5,2}
+    }
     append(&expectedResults[2], expectedMove)
-    expectedMove = {5,4}
+    expectedMove = {
+        from = {6,4},
+        to = {5,4}
+    }
     append(&expectedResults[3], expectedMove)
-    expectedMove = {4,4}
+    expectedMove = {
+        from = {6,4},
+        to = {4,4}
+    }
     append(&expectedResults[3], expectedMove)
-    expectedMove = {5,7}
+    expectedMove = {
+        from = {6,7},
+        to = {5,7}
+    }
     append(&expectedResults[4], expectedMove)
-    expectedMove = {4,7}
+    expectedMove = {
+        from = {6,7},
+        to = {4,7}
+    }
     append(&expectedResults[4], expectedMove)
     for i in 0..=4 {
         defer delete(expectedResults[i])
     }
     
-    actualResults: [5][dynamic][2]i8
+    actualResults: [5][dynamic]chess.Basic_Move
     actualResults[0] = chess.getValidMoves(&testState, {6,0})
     actualResults[1] = chess.getValidMoves(&testState, {6,1})
     actualResults[2] = chess.getValidMoves(&testState, {6,2})
@@ -364,7 +391,7 @@ getValidMoves_whitePawnOpening::proc(t: ^testing.T) {
             for i in actualResults[x] {
                 contains:= false
                 for j in expectedResults[x]{
-                    if(i == j) {
+                    if(i.from == j.from && i.to == j.to) {
                         contains = true
                         break
                     }
@@ -398,26 +425,47 @@ getValidMoves_blackPawnOpening::proc(t: ^testing.T) {
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
-    expectedResults: [5][dynamic][2]i8
-    expectedMove: [2]i8 = {3,0}
+    expectedResults: [5][dynamic]chess.Basic_Move
+    expectedMove: chess.Basic_Move = {
+        from = {1,0},
+        to = {3,0}
+    }
     append(&expectedResults[0], expectedMove)
-    expectedMove = {2,0}
+    expectedMove = {
+        from = {1,0},
+        to = {2,0}
+    }
     append(&expectedResults[0], expectedMove)
-    expectedMove = {2,2}
+    expectedMove = {
+        from = {1,2},
+        to = {2,2}
+    }
     append(&expectedResults[2], expectedMove)
-    expectedMove = {3,4}
+    expectedMove = {
+        from = {1,4},
+        to = {3,4}
+    }
     append(&expectedResults[3], expectedMove)
-    expectedMove = {2,4}
+    expectedMove = {
+        from = {1,4},
+        to = {2,4}
+    }
     append(&expectedResults[3], expectedMove)
-    expectedMove = {3,7}
+    expectedMove = {
+        from = {1,7},
+        to = {3,7}
+    }
     append(&expectedResults[4], expectedMove)
-    expectedMove = {2,7}
+    expectedMove = {
+        from = {1,7},
+        to = {2,7}
+    }
     append(&expectedResults[4], expectedMove)
     for i in 0..=4 {
         defer delete(expectedResults[i])
     }
     
-    actualResults: [5][dynamic][2]i8
+    actualResults: [5][dynamic]chess.Basic_Move
     actualResults[0] = chess.getValidMoves(&testState, {1,0})
     actualResults[1] = chess.getValidMoves(&testState, {1,1})
     actualResults[2] = chess.getValidMoves(&testState, {1,2})
@@ -434,7 +482,7 @@ getValidMoves_blackPawnOpening::proc(t: ^testing.T) {
             for i in actualResults[x] {
                 contains:= false
                 for j in expectedResults[x]{
-                    if(i == j) {
+                    if(i.from == j.from && i.to == j.to) {
                         contains = true
                         break
                     }
@@ -468,38 +516,66 @@ getValidMoves_bishopTest::proc(t: ^testing.T) {
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
-    expectedResults: [dynamic][2]i8
-    expectedMove: [2]i8 = {2,1}
+    expectedResults: [dynamic]chess.Basic_Move
+    expectedMove: chess.Basic_Move = {
+        from = {3,2},
+        to = {2,1}
+    }
     append(&expectedResults, expectedMove)
-    expectedMove = {1,4}
+    expectedMove = {
+        from = {3,2},
+        to = {1,4}
+    }
     append(&expectedResults, expectedMove)
-    expectedMove = {2,3}
+    expectedMove = {
+        from = {3,2},
+        to = {2,3}
+    }
     append(&expectedResults, expectedMove)
-    expectedMove = {4,1}
+    expectedMove = {
+        from = {3,2},
+        to = {4,1}
+    }
     append(&expectedResults, expectedMove)
-    expectedMove = {5,0}
+    expectedMove = {
+        from = {3,2},
+        to = {5,0}
+    }
     append(&expectedResults, expectedMove)
-    expectedMove = {4,3}
+    expectedMove = {
+        from = {3,2},
+        to = {4,3}
+    }
     append(&expectedResults, expectedMove)
-    expectedMove = {5,4}
+    expectedMove = {
+        from = {3,2},
+        to = {5,4}
+    }
     append(&expectedResults, expectedMove)
-    expectedMove = {6,5}
+    expectedMove = {
+        from = {3,2},
+        to = {6,5}
+    }
     append(&expectedResults, expectedMove)
-    expectedMove = {7,6}
+    expectedMove = {
+        from = {3,2},
+        to = {7,6}
+    }
     append(&expectedResults, expectedMove)
     defer delete(expectedResults)
     
-    actualResults: [dynamic][2]i8
+    actualResults: [dynamic]chess.Basic_Move
     actualResults = chess.getValidMoves(&testState, {3,2})
     defer delete(actualResults)
 
     equivalence:bool
+    
     if(len(actualResults) == len(expectedResults)){
         equivalence = true
         for i in actualResults {
             contains:= false
             for j in expectedResults{
-                if(i == j) {
+                if(i.from == j.from && i.to == j.to) {
                     contains = true
                     break
                 }
@@ -512,7 +588,7 @@ getValidMoves_bishopTest::proc(t: ^testing.T) {
     else{
         equivalence = false
     }
-    testing.expect(t, equivalence, "getValidMoves bishop test failed.") 
+    testing.expect(t, equivalence, "getValidMoves bishop test failed.")
 }
 
 
@@ -533,32 +609,62 @@ getValidMoves_knightTest::proc(t: ^testing.T) {
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
     }
-    expectedResults: [2][dynamic][2]i8
-    expectedMove: [2]i8 = {0,2}
+    expectedResults: [2][dynamic]chess.Basic_Move
+    expectedMove: chess.Basic_Move = {
+        from = {1,0},
+        to = {0,2}
+    }
     append(&expectedResults[0], expectedMove)
-    expectedMove = {2,2}
+    expectedMove =  {
+        from = {1,0},
+        to = {2,2}
+    }
     append(&expectedResults[0], expectedMove)
-    expectedMove = {3,1}
+    expectedMove = {
+        from = {1,0},
+        to = {3,1}
+    }
     append(&expectedResults[0], expectedMove)
-    expectedMove = {1,1}
+    expectedMove = {
+        from = {3,2},
+        to = {1,1}
+    }
     append(&expectedResults[1], expectedMove)
-    expectedMove = {1,3}
+    expectedMove = {
+        from = {3,2},
+        to = {1,3}
+    }
     append(&expectedResults[1], expectedMove)
-    expectedMove = {2,0}
+    expectedMove = {
+        from = {3,2},
+        to = {2,0}
+    }
     append(&expectedResults[1], expectedMove)
-    expectedMove = {2,4}
+    expectedMove = {
+        from = {3,2},
+        to = {2,4}
+    } 
     append(&expectedResults[1], expectedMove)
-    expectedMove = {4,0}
+    expectedMove = {
+        from = {3,2},
+        to = {4,0}
+    }
     append(&expectedResults[1], expectedMove)
-    expectedMove = {4,4}
+    expectedMove = {
+        from = {3,2},
+        to = {4,4}
+    }
     append(&expectedResults[1], expectedMove)
-    expectedMove = {5,1}
+    expectedMove = {
+        from = {3,2},
+        to = {5,1}
+    }
     append(&expectedResults[1], expectedMove)
     for i in 0..=1 {
         defer delete(expectedResults[i])
     }
     
-    actualResults: [2][dynamic][2]i8
+    actualResults: [2][dynamic]chess.Basic_Move
     actualResults[0] = chess.getValidMoves(&testState, {1,0})
     actualResults[1] = chess.getValidMoves(&testState, {3,2})
     for i in 0..=1 {
@@ -572,7 +678,7 @@ getValidMoves_knightTest::proc(t: ^testing.T) {
             for i in actualResults[x] {
                 contains:= false
                 for j in expectedResults[x]{
-                    if(i == j) {
+                    if(i.from == j.from && i.to == j.to) {
                         contains = true
                         break
                     }

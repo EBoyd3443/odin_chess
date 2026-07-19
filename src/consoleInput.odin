@@ -25,41 +25,37 @@ inputThread :: proc(state: ^Shared_State) {
             sync.mutex_lock(&state.mutex)
             inputError: = isValidMoveFormat(&state.gameState, input)
             if(inputError == "None") {
-                move:= moveStringToArray(input)
-                isAllowed:= false
-                validMoves:= getValidMoves(&state.gameState, move[0])
-                for validMove in validMoves {
-                    if(move[1] == validMove) {
-                        isAllowed = true
-                    }
-                }
+                
+                move:= moveStringToBasicMove(input)
+                
+                // Checking for allowed move
+                isAllowed:= validateMove (&state.gameState, &move)                
                 moveExecuted:= false
+                // Control based on allowed move
+                //allowed move and king in check
                 if(isAllowed && !isNotAttacked(&state.gameState, 
                 (state.gameState.whiteToPlay)?state.gameState.whiteKingPosition[0]:state.gameState.blackKingPosition[0],
                 (state.gameState.whiteToPlay)?state.gameState.whiteKingPosition[1]:state.gameState.blackKingPosition[1])) {
-                    undoMove:= exploreMove(&state.gameState, move, input)
+                    //explore the future
+                    undoMove:= exploreMove(&state.gameState, move)
+                    // Checking for moves that leave king in check
                     if(isNotAttacked(&state.gameState, 
                     (state.gameState.whiteToPlay)?state.gameState.whiteKingPosition[0]:state.gameState.blackKingPosition[0],
                     (state.gameState.whiteToPlay)?state.gameState.whiteKingPosition[1]:state.gameState.blackKingPosition[1])) {
                         reverseExplore(&state.gameState, undoMove)
                         executeMove(&state.gameState, move)
-                        if(len(input) == 5) {
-                            promotePawn(&state.gameState, move, input[4])
-                        }
                         moveExecuted = true
                     }
                     else {
                         fmt.println("Cant make that move while in check.")
                     }
-                }
+                } // not allowed or king not in check
                 else{
+                    //allowed and king not in check
                     if(isAllowed) {
                         executeMove(&state.gameState, move)
-                        if(len(input) == 5) {
-                            promotePawn(&state.gameState, move, input[4])
-                        }
                         moveExecuted = true
-                    }
+                    } //not allowed                    
                     else {
                         fmt.println("Selected piece can't move there.")
                     }

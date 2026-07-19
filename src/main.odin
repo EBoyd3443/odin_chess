@@ -15,7 +15,6 @@ KING: i8 = 6
 
 // To Do: Checkmate & Stalemate.
 // To Do: More testing of Check implementation.
-// To Do: Handle pinned to king
 
 Shared_State :: struct {
     mutex: sync.Mutex,
@@ -43,15 +42,19 @@ Move_Type :: enum {
     castling,
 }
 
-Reversible_Move :: struct {
+Basic_Move :: struct {
     moveType: Move_Type,
     from: [2]i8,
     to: [2]i8,
+    piecePromotion: i8,
+}
+
+Reversible_Move :: struct {
+    basicMove: Basic_Move,
 
     movedPiece: i8,
     capturedPiece: i8,
 
-    piecePromotion: i8,
     castlingRook: i8,
     castlingRookSquares: [2][2]i8,
     enPassantCaptureSquare: [2]i8,
