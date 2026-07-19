@@ -13,7 +13,7 @@ ROOK: i8 = 4
 QUEEN: i8 = 5
 KING: i8 = 6
 
-// To Do: Checkmate & Stalemate.
+// To Do: Checkmate & Stalemate. Tests.
 // To Do: More testing of Check implementation.
 
 Shared_State :: struct {

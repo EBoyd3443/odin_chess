@@ -6,9 +6,10 @@ import "core:strconv"
 
 isStalemate :: proc(state: ^Game_State, color: i8) -> bool {
     remainingPieceList:[dynamic][2]i8 = (color == WHITE)?getWhitePieces(state):getBlackPieces(state)
-
+    
     for piece in remainingPieceList {
         moves:= getValidMoves(state, piece)
+        defer delete(moves)
         if(len(moves) > 0){
             return false
         }
@@ -619,14 +620,25 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic]Basic_
             }
     }
 
-    //old notes:
-    //check for pin to king
-    //find piece pinning
-    //if move list contains piece pinning, that is only return value
-
-    //new notes: simulate moves, remove moves that put king in check.
-    // To Do: add pawn promotions to move list if moving to ends
+    // new notes: simulate moves, remove moves that put king in check.
+    // To Do: add pawn promotions to move list if moving to ends 
     // convert move [2]i8 to new Basic_Move type  (DONE)
+
+    // Simulate moves, remove moves that put king in check.
+    removalList: [dynamic]int
+    defer delete(removalList)
+    for i:=0; i<len(validTargetMoves); i+=1 {
+        undoMove:= exploreMove(state, validTargetMoves[i])
+        kingPosition:=(ownColor==WHITE)?state.whiteKingPosition:state.blackKingPosition
+        putKingInCheck:= !isNotAttacked(state, kingPosition[0],kingPosition[1])
+        if(putKingInCheck) {
+            append(&removalList, i)
+        }
+        reverseExplore(state, undoMove)
+    }
+    for i:=len(removalList)-1; i >= 0; i -= 1 {
+        ordered_remove(&validTargetMoves, removalList[i])
+    }
 
     return validTargetMoves
 }

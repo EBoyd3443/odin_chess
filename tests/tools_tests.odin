@@ -321,7 +321,7 @@ isOnBoard_test::proc(t: ^testing.T) {
 getValidMoves_whitePawnOpening::proc(t: ^testing.T) {
     testState : chess.Game_State = {    
         board = {
-            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { 0,            0,            0,            0,           0,          0,            0,            WHITE*KING},
             { 0,            0,            0,            0,           0,          0,            0,            0         },
             { 0,            0,            0,            0,           0,          0,            0,            0         },
             { 0,            0,            0,            0,           0,          0,            0,            0         },
@@ -333,6 +333,7 @@ getValidMoves_whitePawnOpening::proc(t: ^testing.T) {
         whiteToPlay = true,
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
+        whiteKingPosition = {0,7}
     }
     expectedResults: [5][dynamic]chess.Basic_Move
     expectedMove: chess.Basic_Move = {
@@ -419,11 +420,12 @@ getValidMoves_blackPawnOpening::proc(t: ^testing.T) {
             { 0,            0,            0,            0,           0,          0,            0,            0         },
             { 0,            0,            0,            0,           0,          0,            0,            0         },
             { 0,            0,            0,            0,           0,          0,            0,            0         },
-            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { 0,            0,            0,            0,           0,          0,            0,            BLACK*KING},
         },
         whiteToPlay = false,
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
+        blackKingPosition = {7,7}
     }
     expectedResults: [5][dynamic]chess.Basic_Move
     expectedMove: chess.Basic_Move = {
@@ -510,11 +512,12 @@ getValidMoves_bishopTest::proc(t: ^testing.T) {
             { 0,            0,            0,            0,           0,          0,            0,            0         },
             { 0,            0,            0,            0,           0,          0,            0,            0         },
             { 0,            0,            0,            0,           0,          0,            0,            0         },
-            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { 0,            0,            0,            0,           0,          0,            0,            BLACK*KING},
         },
         whiteToPlay = true,
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
+        blackKingPosition = {7,7}
     }
     expectedResults: [dynamic]chess.Basic_Move
     expectedMove: chess.Basic_Move = {
@@ -603,11 +606,12 @@ getValidMoves_knightTest::proc(t: ^testing.T) {
             { 0,            0,            0,            0,           0,          0,            0,            0         },
             { 0,            0,            0,            BLACK*PAWN,  0,          0,            0,            0         },
             { 0,            0,            0,            0,           0,          0,            0,            0         },
-            { 0,            0,            0,            0,           0,          0,            0,            0         },
+            { 0,            0,            0,            0,           0,          0,            0,            BLACK*KING},
         },
         whiteToPlay = true,
         whitePiecesCaptured = 0,
         blackPiecesCaptured = 0,
+        blackKingPosition = {7,7}
     }
     expectedResults: [2][dynamic]chess.Basic_Move
     expectedMove: chess.Basic_Move = {
