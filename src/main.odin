@@ -13,9 +13,6 @@ ROOK: i8 = 4
 QUEEN: i8 = 5
 KING: i8 = 6
 
-// To Do: Checkmate & Stalemate. Tests.
-// To Do: More testing of Check implementation.
-
 Shared_State :: struct {
     mutex: sync.Mutex,
     gameState: Game_State,
@@ -81,17 +78,6 @@ main :: proc() {
                 { WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN,  WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN},
                 { WHITE*ROOK, WHITE*KNIGHT, WHITE*BISHOP, WHITE*QUEEN, WHITE*KING, WHITE*BISHOP, WHITE*KNIGHT, WHITE*ROOK},
             },
-            // Test Board
-            // board = {
-            //     { BLACK*ROOK, BLACK*KNIGHT, BLACK*BISHOP, BLACK*QUEEN, BLACK*KING, BLACK*BISHOP, BLACK*KNIGHT, BLACK*ROOK},
-            //     { BLACK*PAWN, BLACK*PAWN,   BLACK*PAWN,   0,           BLACK*PAWN, BLACK*PAWN,   BLACK*PAWN,   BLACK*PAWN},
-            //     { 0,          0,            0,            0,           0,          0,            0,            0         },
-            //     { 0,          0,            0,            BLACK*PAWN,  0,          0,            0,            0         },
-            //     { 0,          0,            0,            WHITE*KING,  0,          0,            0,            0         },
-            //     { 0,          0,            0,            0,           0,          0,            0,            0         },
-            //     { WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN,  WHITE*PAWN, WHITE*PAWN,   WHITE*PAWN,   WHITE*PAWN},
-            //     { WHITE*ROOK, WHITE*KNIGHT, WHITE*BISHOP, WHITE*QUEEN, 0,          WHITE*BISHOP, WHITE*KNIGHT, WHITE*ROOK},
-            // },
             whiteToPlay = true,
             whitePiecesCaptured = 0,
             blackPiecesCaptured = 0,

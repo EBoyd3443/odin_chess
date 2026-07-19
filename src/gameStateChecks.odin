@@ -17,18 +17,24 @@ isStalemate :: proc(state: ^Game_State, color: i8) -> bool {
     return true
 }
 
-isCheckMate :: proc(state: ^Game_State, color:i8) -> bool {
-    if(len(getValidMoves(state, (color == WHITE)?state.whiteKingPosition:state.blackKingPosition)) > 0) {
+isCheckmate :: proc(state: ^Game_State, color:i8) -> bool {
+    kingPosition:= (color == WHITE)?state.whiteKingPosition:state.blackKingPosition
+    if(isNotAttacked(state, kingPosition[0], kingPosition[1], (color==WHITE)?BLACK:WHITE)) {
+        return false
+    }
+    validKingMoves:= getValidMoves(state, kingPosition)
+    defer delete(validKingMoves)
+    if(len(validKingMoves) > 0) {
         return false
     }
     else {
         remainingPieceList:[dynamic][2]i8 = (color == WHITE)?getWhitePieces(state):getBlackPieces(state)
-
         for piece in remainingPieceList {
             moves:= getValidMoves(state, piece)
             for move in moves {
                 undoMove:= exploreMove(state, move)
-                if(isNotAttacked(state, state.whiteKingPosition[0], state.whiteKingPosition[1])) {
+                kingPosition = (color == WHITE)?state.whiteKingPosition:state.blackKingPosition
+                if(isNotAttacked(state, kingPosition[0], kingPosition[1], (color==WHITE)?BLACK:WHITE)) {
                     reverseExplore(state, undoMove)
                     return false
                 }
@@ -36,6 +42,7 @@ isCheckMate :: proc(state: ^Game_State, color:i8) -> bool {
                     reverseExplore(state, undoMove)
                 }
             }
+            delete(moves)
         }
     }
     return true
@@ -58,8 +65,7 @@ getWhitePieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
             }
         }
     }
-    // Lines past here should never run.
-    fmt.println("gameStateChecks.odin(line60): index >= remainingPieces early exit not hit.")
+    // Lines past here should never run in real game. Late exit fine for tests.
     return result
 }
 
@@ -80,17 +86,22 @@ getBlackPieces :: proc(state: ^Game_State) -> [dynamic][2]i8 {
             }
         }
     }
-    // Lines past here should never run.
-    fmt.println("gameStateChecks.odin(line 82): index >= remainingPieces early exit not hit.")
+    // Lines past here should never run in real game. Late exit fine for tests.
     return result
 }
 
-isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8) -> bool {
-    color: i8 = (state.whiteToPlay)? -1: 1
-    if(isOnBoard(y + color, x + 1) && state.board[y+color][x+1] == color * PAWN) {
+isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8, assignAttacker: i8 = 0) -> bool {
+    attackingColor:i8
+    if(assignAttacker == 0) {
+        attackingColor = (state.whiteToPlay)? -1: 1
+    }
+    else {
+        attackingColor = assignAttacker
+    }
+    if(isOnBoard(y + attackingColor, x + 1) && state.board[y+attackingColor][x+1] == attackingColor * PAWN) {
         return false
     }
-    if(isOnBoard(y + color, x - 1) && state.board[y+color][x-1] == color * PAWN) {
+    if(isOnBoard(y + attackingColor, x - 1) && state.board[y+attackingColor][x-1] == attackingColor * PAWN) {
         return false
     }
     //rook (and half queen)
@@ -98,7 +109,7 @@ isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8) -> bool {
     for i:i8=x+1; i<8; i+=1 {
         target: i8 = state.board[y][i]
         
-        if(target == color * QUEEN || target == color * ROOK) {
+        if(target == attackingColor * QUEEN || target == attackingColor * ROOK) {
             return false
         }
         if(target != 0) {
@@ -110,7 +121,7 @@ isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8) -> bool {
     for i:i8=x-1; i>=0; i-=1 {
         target: i8 = state.board[y][i]
         
-        if(target == color * QUEEN || target == color * ROOK) {
+        if(target == attackingColor * QUEEN || target == attackingColor * ROOK) {
             return false
         }
         if(target != 0) {
@@ -122,7 +133,7 @@ isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8) -> bool {
     for i:i8=y+1; i<8; i+=1 {
         target: i8 = state.board[i][x]
         
-        if(target == color * QUEEN || target == color * ROOK) {
+        if(target == attackingColor * QUEEN || target == attackingColor * ROOK) {
             return false
         }
         if(target != 0) {
@@ -134,7 +145,7 @@ isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8) -> bool {
     for i:i8=y-1; i>=0; i-=1 {
         target: i8 = state.board[i][x]
         
-        if(target == color * QUEEN || target == color * ROOK) {
+        if(target == attackingColor * QUEEN || target == attackingColor * ROOK) {
             return false
         }
         if(target != 0) {
@@ -148,7 +159,7 @@ isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8) -> bool {
     for i:i8=1; isOnBoard(x+i, y+i); i+=1 {
         target: i8 = state.board[y+i][x+i]
         
-        if(target == color * QUEEN || target == color * BISHOP) {
+        if(target == attackingColor * QUEEN || target == attackingColor * BISHOP) {
             return false
         }
         if(target != 0) {
@@ -160,7 +171,7 @@ isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8) -> bool {
     for i:i8=1; isOnBoard(x+i, y-i); i+=1 {
         target: i8 = state.board[y-i][x+i]
         
-        if(target == color * QUEEN || target == color * BISHOP) {
+        if(target == attackingColor * QUEEN || target == attackingColor * BISHOP) {
             return false
         }
         if(target != 0) {
@@ -172,7 +183,7 @@ isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8) -> bool {
     for i:i8=1; isOnBoard(x-i, y+i); i+=1 {
         target: i8 = state.board[y+i][x-i]
         
-        if(target == color * QUEEN || target == color * BISHOP) {
+        if(target == attackingColor * QUEEN || target == attackingColor * BISHOP) {
             return false
         }
         if(target != 0) {
@@ -184,7 +195,7 @@ isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8) -> bool {
     for i:i8=1; isOnBoard(x-i, y-i); i+=1 {
         target: i8 = state.board[y-i][x-i]
         
-        if(target == color * QUEEN || target == color * BISHOP) {
+        if(target == attackingColor * QUEEN || target == attackingColor * BISHOP) {
             return false
         }
         if(target != 0) {
@@ -205,7 +216,7 @@ isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8) -> bool {
     }
     for i in knightMoves {
         if(isOnBoard(i[1], i[0])) {
-            if(state.board[i[1]][i[0]] == color * KNIGHT) {
+            if(state.board[i[1]][i[0]] == attackingColor * KNIGHT) {
                 return false
             }
         }
@@ -223,7 +234,7 @@ isNotAttacked :: proc(state: ^Game_State, y: i8, x: i8) -> bool {
     }
     for i in kingMoves {
         if(isOnBoard(i[1], i[0])) {
-            if(state.board[i[1]][i[0]] == color * KING) {
+            if(state.board[i[1]][i[0]] == attackingColor * KING) {
                 return false
             }
         }
@@ -437,7 +448,19 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic]Basic_
                     from = targetPiece,
                     to = {targetPiece[0]+1, targetPiece[1]},
                 }
-                append(&validTargetMoves, newMove)
+                if(newMove.to[0] < 7) {
+                    append(&validTargetMoves, newMove)
+                }
+                else {
+                    newMove.piecePromotion = BLACK*BISHOP
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = BLACK*KNIGHT
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = BLACK*ROOK
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = BLACK*QUEEN
+                    append(&validTargetMoves, newMove)
+                }
             }
             if(isOnBoard(targetPiece[0]+1, targetPiece[1]+1) &&
                 state.board[targetPiece[0]+1][targetPiece[1]+1] > 0) {
@@ -446,7 +469,19 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic]Basic_
                     from = targetPiece,
                     to = {targetPiece[0]+1, targetPiece[1]+1},
                 }
-                append(&validTargetMoves, newMove)
+                if(newMove.to[0] < 7) {
+                    append(&validTargetMoves, newMove)
+                }
+                else {
+                    newMove.piecePromotion = BLACK*BISHOP
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = BLACK*KNIGHT
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = BLACK*ROOK
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = BLACK*QUEEN
+                    append(&validTargetMoves, newMove)
+                }
             }
             if(isOnBoard(targetPiece[0]+1, targetPiece[1]-1) &&
                 state.board[targetPiece[0]+1][targetPiece[1]-1] > 0) {
@@ -455,7 +490,19 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic]Basic_
                     from = targetPiece,
                     to = {targetPiece[0]+1, targetPiece[1]-1},
                 }
-                append(&validTargetMoves, newMove)
+                if(newMove.to[0] < 7) {
+                    append(&validTargetMoves, newMove)
+                }
+                else {
+                    newMove.piecePromotion = BLACK*BISHOP
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = BLACK*KNIGHT
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = BLACK*ROOK
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = BLACK*QUEEN
+                    append(&validTargetMoves, newMove)
+                }
             }
             if(targetPiece[0] == 1 && isEmpty(state.board[i8(targetPiece[0]+1)][targetPiece[1]]) &&
             isEmpty(state.board[targetPiece[0]+2][targetPiece[1]])) {
@@ -531,7 +578,19 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic]Basic_
                     from = targetPiece,
                     to = {targetPiece[0]-1, targetPiece[1]},
                 }
-                append(&validTargetMoves, newMove)
+                if(newMove.to[0] > 0) {
+                    append(&validTargetMoves, newMove)
+                }
+                else {
+                    newMove.piecePromotion = WHITE*BISHOP
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = WHITE*KNIGHT
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = WHITE*ROOK
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = WHITE*QUEEN
+                    append(&validTargetMoves, newMove)
+                }
             }
             if(isOnBoard(targetPiece[0]-1, targetPiece[1]+1) &&
                 state.board[targetPiece[0]-1][targetPiece[1]+1] < 0) {
@@ -540,7 +599,19 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic]Basic_
                     from = targetPiece,
                     to = {targetPiece[0]-1, targetPiece[1]+1},
                 }
-                append(&validTargetMoves, newMove)
+                if(newMove.to[0] > 0) {
+                    append(&validTargetMoves, newMove)
+                }
+                else {
+                    newMove.piecePromotion = WHITE*BISHOP
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = WHITE*KNIGHT
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = WHITE*ROOK
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = WHITE*QUEEN
+                    append(&validTargetMoves, newMove)
+                }
             }
             if(isOnBoard(targetPiece[0]-1, targetPiece[1]-1) && 
             state.board[targetPiece[0]-1][targetPiece[1]-1] < 0) {
@@ -549,7 +620,19 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic]Basic_
                     from = targetPiece,
                     to = {targetPiece[0]-1, targetPiece[1]-1},
                 }
-                append(&validTargetMoves, newMove)
+                if(newMove.to[0] > 0) {
+                    append(&validTargetMoves, newMove)
+                }
+                else {
+                    newMove.piecePromotion = WHITE*BISHOP
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = WHITE*KNIGHT
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = WHITE*ROOK
+                    append(&validTargetMoves, newMove)
+                    newMove.piecePromotion = WHITE*QUEEN
+                    append(&validTargetMoves, newMove)
+                }
             }
             if(targetPiece[0] == 6 && isEmpty(state.board[targetPiece[0]-1][targetPiece[1]]) &&
             isEmpty(state.board[targetPiece[0]-2][targetPiece[1]])) {
@@ -619,18 +702,13 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic]Basic_
                 }
             }
     }
-
-    // new notes: simulate moves, remove moves that put king in check.
-    // To Do: add pawn promotions to move list if moving to ends 
-    // convert move [2]i8 to new Basic_Move type  (DONE)
-
+    
     // Simulate moves, remove moves that put king in check.
     removalList: [dynamic]int
-    defer delete(removalList)
     for i:=0; i<len(validTargetMoves); i+=1 {
         undoMove:= exploreMove(state, validTargetMoves[i])
         kingPosition:=(ownColor==WHITE)?state.whiteKingPosition:state.blackKingPosition
-        putKingInCheck:= !isNotAttacked(state, kingPosition[0],kingPosition[1])
+        putKingInCheck:= !isNotAttacked(state, kingPosition[0],kingPosition[1], enemyColor)
         if(putKingInCheck) {
             append(&removalList, i)
         }
@@ -639,7 +717,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic]Basic_
     for i:=len(removalList)-1; i >= 0; i -= 1 {
         ordered_remove(&validTargetMoves, removalList[i])
     }
-
+    delete(removalList)
     return validTargetMoves
 }
 

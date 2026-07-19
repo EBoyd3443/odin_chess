@@ -5,6 +5,8 @@ import "core:fmt"
 
 @require import chess "../src"
 
+// Stalemate examples pulled from wikipedia
+
 @(test)
 isStalemate_testCase1::proc(t: ^testing.T) {
     testState : chess.Game_State = {    
