@@ -13,9 +13,24 @@ ROOK: i8 = 4
 QUEEN: i8 = 5
 KING: i8 = 6
 
+Render_Screens :: enum {
+    main,
+    settings,
+    game,
+}
+
+Game_Type :: enum {
+    freeplay,
+    ai,
+}
+
 Shared_State :: struct {
     mutex: sync.Mutex,
     gameState: Game_State,
+    renderScreen: Render_Screens,
+    gameType: Game_Type,
+    selectedSquare: [2]i8,
+    needPromotion: bool,
 }
 
 Game_State :: struct {
@@ -66,6 +81,7 @@ Reversible_Move :: struct {
 main :: proc() {
     //color: (-) => black, (+) => white
     //pieces: 1 => pawn, 2 => bishop, 3 => knight, 4 => rook, 5 => queen, 6 => king
+
     state := Shared_State {
         gameState = {
             board ={
@@ -83,13 +99,15 @@ main :: proc() {
             blackPiecesCaptured = 0,
             whiteKingPosition = {7,4},
             blackKingPosition = {0,4},
-        }
+        },
+        renderScreen = Render_Screens.main,
+        gameType = Game_Type.freeplay,
+        selectedSquare = {-1, -1},
     }
    
     t := thread.create_and_start_with_poly_data(
         &state,
         inputThread,
     )
-
-    rlBoard(state.gameState.board)
+    rlWindow(&state)
 }
