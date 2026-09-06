@@ -8,7 +8,7 @@ rlMain :: proc(screen: ^Render_Screens) {
     rl.ClearBackground(rl.RAYWHITE)
     
     startBox: rl.Rectangle = {
-        x = 300,
+        x = 400,
         y = 300,
         width = 200,
         height = 50
@@ -18,7 +18,7 @@ rlMain :: proc(screen: ^Render_Screens) {
     }
 
     settingsBox: rl.Rectangle = {
-        x = 300,
+        x = 400,
         y = 400,
         width = 200,
         height = 50
@@ -26,7 +26,17 @@ rlMain :: proc(screen: ^Render_Screens) {
     if(rl.GuiButton(settingsBox, "SETTINGS")) {
         screen^ = Render_Screens.settings
     }
-    rl.EndDrawing()
+
+    exitBox: rl.Rectangle = {
+        x = 400,
+        y = 500,
+        width = 200,
+        height = 50
+    }
+    if(rl.GuiButton(exitBox, "EXIT")) {
+        rl.CloseWindow()
+    }
+    rl.EndDrawing()    
 }
 
 rlSettings :: proc(state: ^Shared_State) {

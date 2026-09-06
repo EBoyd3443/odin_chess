@@ -76,7 +76,11 @@ moveStringToBasicMove :: proc(input: string) -> Basic_Move {
 }
 
 validateMove :: proc(state: ^Game_State, move: ^Basic_Move) -> bool {
+    if(move.from[0] < 0 || move.from[1] < 0) {
+        return false
+    }
     color: i8 = state.board[move.from[0]][move.from[1]]>0?1:-1
+    // ToDo: double check this
     move.piecePromotion = move.piecePromotion*color
     validMoves:= getValidMoves(state, move.from)
     for validMove in validMoves {

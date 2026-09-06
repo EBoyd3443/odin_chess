@@ -358,7 +358,7 @@ getValidMoves :: proc(state: ^Game_State, targetPiece: [2]i8) -> [dynamic]Basic_
             fallthrough
         case WHITE*ROOK:
             checkDirections:[4][2]int ={        {-1, 0},
-                                        { 0, 1}, /*ROOK*/ { 0, 1},
+                                        { 0,-1}, /*ROOK*/ { 0, 1},
                                                 { 1, 0}} 
             for direction in checkDirections {
                 for i in 1..=7 {
@@ -731,4 +731,27 @@ isEmpty :: proc(target: i8) -> bool {
 
 containsOwnPiece :: proc(ownColor: i8, target: i8) -> bool {
     return target * ownColor > 0
+}
+
+activePlayerControls :: proc(state: ^Game_State, targetCoord: [2]i8) -> bool {
+    targetPiece:= state.board[targetCoord[0]][targetCoord[1]]
+    if(targetPiece == 0){
+        return false
+    }
+    if(state.whiteToPlay){
+        if(targetPiece > 0) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    else {
+        if(targetPiece < 0) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
 }

@@ -30,7 +30,8 @@ Shared_State :: struct {
     renderScreen: Render_Screens,
     gameType: Game_Type,
     selectedSquare: [2]i8,
-    needPromotion: bool,
+    // Maybe should be [2]i8 to mark square that needs promotion defined, but if so need to initialize as {-1,-1}.
+    needPromotion: [2]i8,
 }
 
 Game_State :: struct {
@@ -103,6 +104,7 @@ main :: proc() {
         renderScreen = Render_Screens.main,
         gameType = Game_Type.freeplay,
         selectedSquare = {-1, -1},
+        needPromotion = {-1,-1},
     }
    
     t := thread.create_and_start_with_poly_data(
